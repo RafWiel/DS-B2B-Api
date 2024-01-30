@@ -1,4 +1,4 @@
-namespace WebApi_DS_B2B
+namespace WebApiService
 {
     public class WeatherForecast
     {

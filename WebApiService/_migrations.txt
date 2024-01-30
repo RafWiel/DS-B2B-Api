@@ -1,0 +1,5 @@
+dotnet tool install --global dotnet-ef --version 6.*
+
+dotnet ef migrations add XXX
+dotnet ef migrations remove
+dotnet ef database update

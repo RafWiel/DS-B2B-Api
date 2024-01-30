@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace WebApi_DS_B2B.Controllers
+namespace WebApiService.Controllers
 {
     [ApiController]
     [Route("[controller]")]
