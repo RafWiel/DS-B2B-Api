@@ -35,7 +35,7 @@ try
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
 
-    ////wylacz wbudowana walidacje modelu
+    /*//wylacz wbudowana walidacje modelu
     //builder.Services.Configure<ApiBehaviorOptions>(options =>
     //{
     //    options.SuppressModelStateInvalidFilter = true;
@@ -47,14 +47,11 @@ try
     //    u.Filters.Add(new ValidateModelFilter());
     //});
 
-    builder.Services.AddScoped<ValidateModelFilter>();
-    builder.Services.AddScoped<IInstallService, InstallService>();
-    //builder.Services.AddScoped<ICertificatesService, CertificatesService>();
-    //builder.Services.AddScoped<IDepartmentsService, DepartmentsService>();
-    //builder.Services.AddScoped<IManufacturersService, ManufacturersService>();
-    //builder.Services.AddScoped<IMeasurementDevicesService, MeasurementDevicesService>();
-    //builder.Services.AddScoped<IPdfDocumentsService, PdfDocumentsService>();
+    builder.Services.AddScoped<ValidateModelFilter>();*/
 
+    builder.Services.AddScoped<IInstallService, InstallService>();
+    builder.Services.AddScoped<IEmployeesService, EmployeesService>();
+    
     builder.Services.AddTransient<GlobalExceptionsMiddleware>();
 
     builder.Logging.ClearProviders();
