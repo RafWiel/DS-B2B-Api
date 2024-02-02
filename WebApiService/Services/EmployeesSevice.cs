@@ -23,6 +23,7 @@ namespace WebApiService.Services
 
         public async Task<List<EmployeeDto>> Get()
         {
+            Thread.Sleep(1000);
             //return all
             //if (string.IsNullOrEmpty(search))
             return await _context
