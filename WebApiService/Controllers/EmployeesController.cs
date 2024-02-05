@@ -22,9 +22,9 @@ namespace WebApiService.Controllers
         }
 
         [HttpGet]        
-        public async Task<ActionResult<List<EmployeeDto>>> Get()
+        public async Task<ActionResult<List<EmployeeDto>>> Get(string? search, int? page)
         {
-            var items = await _service.Get();
+            var items = await _service.Get(search, page);
             if (items == null)
                 return NotFound();
 

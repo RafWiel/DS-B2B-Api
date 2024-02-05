@@ -71,6 +71,21 @@ namespace WebApiService.Services
                 IsActive = true,
                 IsMailing = false
             });
+
+            for (int i = 1; i <= 1000; i++)
+            {
+                _context.Employees.Add(new EmployeeModel
+                {
+                    Type = (int)EmployeeType.Supervisor,
+                    Login = $"employee_{i}",
+                    Name = $"Name",
+                    LastName = $"Lastname {i}",
+                    PhoneNumber = $"123456789",
+                    Email = $"employee@email.com",
+                    IsActive = true,
+                    IsMailing = false
+                });
+            }
         }
 
         #endregion        
