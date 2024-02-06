@@ -2,8 +2,8 @@
 {
     public enum EmployeeType
     {
-        Administrator = 0,
-        Supervisor = 1,
-        Employee = 2,
+        Administrator = 1,
+        Supervisor = 2,
+        Employee = 3,
     }
 }

@@ -72,11 +72,12 @@ namespace WebApiService.Services
                 IsMailing = false
             });
 
-            for (int i = 1; i <= 1000; i++)
+            var random = new Random();
+            for (int i = 1; i <= 250; i++)
             {
                 _context.Employees.Add(new EmployeeModel
                 {
-                    Type = (int)EmployeeType.Supervisor,
+                    Type = (int)random.Next(1, 3),
                     Login = $"employee_{i}",
                     Name = $"Name",
                     LastName = $"Lastname {i}",
