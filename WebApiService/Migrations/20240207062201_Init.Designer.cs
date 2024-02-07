@@ -11,8 +11,8 @@ using WebApiService.Data;
 namespace WebApiService.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240130075210_Initial")]
-    partial class Initial
+    [Migration("20240207062201_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
