@@ -8,6 +8,7 @@ using WebApiService.Enums;
 using WebApiService.Models;
 using WebApiService.DataTransferObjects;
 using System.Text.RegularExpressions;
+using WebApiService.Extensions;
 
 namespace WebApiService.Services
 {
@@ -22,17 +23,24 @@ namespace WebApiService.Services
             _logger = logger;
         }
 
-        public async Task<List<EmployeeDto>> Get(string? search, int? page)
+        public async Task<List<EmployeeDto>> Get(string? search, int? type, string? sortColumn, int? sortOrder, int? page)
         {
             //login imie nazwisko w tabeli users, employee tylko id
+            //var sql = query.ToQueryString();
 
             return await _context.Employees
                 .Where(u =>
-                    !string.IsNullOrEmpty(search) ? 
                     (
-                        u.Login.ToLower().Contains(search.ToLower()) ||
-                        string.Concat(u.Name.ToLower(), " ", u.LastName.ToLower()).Trim().Contains(search.ToLower())
-                    ) : true                                            
+                        !string.IsNullOrEmpty(search) ? 
+                        (                        
+                            u.Login.ToLower().Contains(search.ToLower()) ||
+                            string.Concat(u.Name.ToLower(), " ", u.LastName.ToLower()).Trim().Contains(search.ToLower())                        
+                        ) : true
+                    ) 
+                    &&
+                    (
+                        type != null && type != 0 ? u.Type == type : true
+                    )
                 )
                 .Skip(50 * ((page ?? 1) - 1))
                 .Take(50)
@@ -43,7 +51,7 @@ namespace WebApiService.Services
                     Name = $"{u.Name} {u.LastName}".Trim(),
                     Type = u.Type,
                 })
-                .OrderBy(u => u.Id)
+                .OrderBy(sortColumn ?? nameof(EmployeeDto.Id), Convert.ToBoolean(sortOrder ?? 0))                
                 .ToListAsync();            
         }                   
     }
