@@ -23,10 +23,11 @@ namespace WebApiService.Services
             _logger = logger;
         }
 
-        public async Task<List<EmployeeDto>> Get(string? search, int? type, string? sortColumn, int? sortOrder, int? page)
+        public async Task<List<EmployeeDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
         {
             //login imie nazwisko w tabeli users, employee tylko id
             //var sql = query.ToQueryString();
+            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
 
             return await _context.Employees
                 .Where(u =>
@@ -34,7 +35,7 @@ namespace WebApiService.Services
                         !string.IsNullOrEmpty(search) ? 
                         (                        
                             u.Login.ToLower().Contains(search.ToLower()) ||
-                            string.Concat(u.Name.ToLower(), " ", u.LastName.ToLower()).Trim().Contains(search.ToLower())                        
+                            u.Name.ToLower().Contains(search.ToLower())                        
                         ) : true
                     ) 
                     &&
@@ -42,16 +43,16 @@ namespace WebApiService.Services
                         type != null && type != 0 ? u.Type == type : true
                     )
                 )
+                .OrderBy(sortColumn ?? nameof(EmployeeDto.Id), isDescending)
                 .Skip(50 * ((page ?? 1) - 1))
                 .Take(50)
                 .Select(u => new EmployeeDto
                 {
                     Id = u.Id,
                     Login = u.Login,
-                    Name = $"{u.Name} {u.LastName}".Trim(),
+                    Name = u.Name,
                     Type = u.Type,
-                })
-                .OrderBy(sortColumn ?? nameof(EmployeeDto.Id), Convert.ToBoolean(sortOrder ?? 0))                
+                })                
                 .ToListAsync();            
         }                   
     }

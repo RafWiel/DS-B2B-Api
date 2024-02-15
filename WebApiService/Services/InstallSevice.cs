@@ -40,8 +40,7 @@ namespace WebApiService.Services
             {
                 Type = (int)EmployeeType.Administrator,
                 Login = "rafal.wielicki",
-                Name = "Rafał",
-                LastName = "Wielicki",
+                Name = "Rafał Wielicki",
                 PhoneNumber = "793008557",
                 Email = "rafal.wielicki@gmail.com",
                 IsActive = true,
@@ -52,8 +51,7 @@ namespace WebApiService.Services
             {
                 Type = (int)EmployeeType.Administrator,
                 Login = "piotr.trybuchowicz",
-                Name = "Piotr",
-                LastName = "Trybuchowicz",
+                Name = "Piotr Trybuchowicz",
                 PhoneNumber = "793008558",
                 Email = "piotr.trybuchowicz@gmail.com",
                 IsActive = true,
@@ -64,8 +62,7 @@ namespace WebApiService.Services
             {
                 Type = (int)EmployeeType.Supervisor,
                 Login = "andrzej.jurkowski",
-                Name = "Andrzej",
-                LastName = "Jurkowski",
+                Name = "Andrzej Jurkowski",
                 PhoneNumber = "793008559",
                 Email = "andrzej.jurkowski@gmail.com",
                 IsActive = true,
@@ -79,8 +76,7 @@ namespace WebApiService.Services
                 {
                     Type = (int)random.Next(1, 3),
                     Login = $"employee_{i}",
-                    Name = $"Name",
-                    LastName = $"Lastname {i}",
+                    Name = $"Name {i}",
                     PhoneNumber = $"123456789",
                     Email = $"employee@email.com",
                     IsActive = true,

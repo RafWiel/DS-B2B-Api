@@ -26,7 +26,7 @@ namespace WebApiService.Controllers
             string? search, 
             int? type,
             [FromQuery(Name = "sort-column")] string? sortColumn,
-            [FromQuery(Name = "sort-order")] int? sortOrder, 
+            [FromQuery(Name = "sort-order")] string? sortOrder, 
             int? page)
         {
             var items = await _service.Get(search, type, sortColumn, sortOrder, page);

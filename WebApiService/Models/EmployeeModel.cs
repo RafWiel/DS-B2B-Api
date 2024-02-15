@@ -18,12 +18,8 @@ namespace WebApiService.Models
         public string Login { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(32)]
+        [StringLength(64)]
         public string Name { get; set; } = string.Empty;
-
-        [Required]
-        [StringLength(32)]
-        public string LastName { get; set; } = String.Empty;
 
         [StringLength(32)]
         public string? PhoneNumber { get; set; }

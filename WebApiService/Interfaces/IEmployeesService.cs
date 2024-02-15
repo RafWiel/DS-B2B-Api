@@ -5,6 +5,6 @@ namespace WebApiService.Interfaces
 {
     public interface IEmployeesService
     {
-        Task<List<EmployeeDto>> Get(string? search, int? type, string? sortColumn, int? sortOrder, int? page);
+        Task<List<EmployeeDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page);
     }
 }

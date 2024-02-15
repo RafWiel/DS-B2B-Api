@@ -11,8 +11,8 @@ using WebApiService.Data;
 namespace WebApiService.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240207062201_Init")]
-    partial class Init
+    [Migration("20240215075636_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,11 +41,6 @@ namespace WebApiService.Migrations
                     b.Property<bool>("IsMailing")
                         .HasColumnType("bit");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
-
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -53,8 +48,8 @@ namespace WebApiService.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("nvarchar(32)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(32)
