@@ -54,6 +54,29 @@ namespace WebApiService.Services
                     Type = u.Type,
                 })                
                 .ToListAsync();            
-        }                   
+        }
+
+        public async Task<Boolean> Delete(int id)
+        {
+            var item = await _context.Employees.FindAsync(id);
+            if (item == null)
+            {
+                _logger.LogWarning($"Employee id: {id} not found");
+                return false;
+            }
+
+            _context.Employees.Remove(item);
+
+            var result = await _context.SaveChangesAsync();
+            
+            return result > 0;
+        }
+
+        public async Task<Boolean> DeleteAll()
+        {
+            var result = await _context.Database.ExecuteSqlRawAsync("delete from Employees");
+
+            return result > 0;            
+        }
     }
 }

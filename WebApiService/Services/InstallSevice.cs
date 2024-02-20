@@ -70,7 +70,7 @@ namespace WebApiService.Services
             });
 
             var random = new Random();
-            for (int i = 1; i <= 250; i++)
+            for (int i = 1; i <= 100; i++)
             {
                 _context.Employees.Add(new EmployeeModel
                 {
