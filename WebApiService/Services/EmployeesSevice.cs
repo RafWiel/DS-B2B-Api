@@ -23,7 +23,7 @@ namespace WebApiService.Services
             _logger = logger;
         }
 
-        public async Task<List<EmployeeDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
+        public async Task<List<EmployeeListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
         {
             //login imie nazwisko w tabeli users, employee tylko id
             //var sql = query.ToQueryString();
@@ -43,10 +43,10 @@ namespace WebApiService.Services
                         type != null && type != 0 ? u.Type == type : true
                     )
                 )
-                .OrderBy(sortColumn ?? nameof(EmployeeDto.Id), isDescending)
+                .OrderBy(sortColumn ?? nameof(EmployeeListDto.Id), isDescending)
                 .Skip(50 * ((page ?? 1) - 1))
                 .Take(50)
-                .Select(u => new EmployeeDto
+                .Select(u => new EmployeeListDto
                 {
                     Id = u.Id,
                     Login = u.Login,
@@ -54,6 +54,13 @@ namespace WebApiService.Services
                     Type = u.Type,
                 })                
                 .ToListAsync();            
+        }
+
+        public async Task<EmployeeModel?> Get(int id)
+        {
+            return await _context.Employees
+                .Where(u => u.Id == id)
+                .SingleOrDefaultAsync();
         }
 
         public async Task<Boolean> Delete(int id)

@@ -22,7 +22,7 @@ namespace WebApiService.Controllers
         }
 
         [HttpGet]        
-        public async Task<ActionResult<List<EmployeeDto>>> Get(
+        public async Task<ActionResult<List<EmployeeListDto>>> Get(
             string? search, 
             int? type,
             [FromQuery(Name = "sort-column")] string? sortColumn,
@@ -34,6 +34,17 @@ namespace WebApiService.Controllers
                 return NotFound();
 
             return Ok(items);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<EmployeeModel>> Get(int id)
+        {
+            Thread.Sleep(5000);
+            var model = await _service.Get(id);
+            if (model == null)
+                return NotFound();
+
+            return Ok(model);
         }
 
         [HttpDelete("{id:int}")]

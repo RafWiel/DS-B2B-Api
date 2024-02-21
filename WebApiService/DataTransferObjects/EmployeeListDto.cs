@@ -2,7 +2,7 @@
 
 namespace WebApiService.DataTransferObjects
 {
-    public class EmployeeDto
+    public class EmployeeListDto
     {
         public int Id { get; set; }        
         public string Login { get; set; }
