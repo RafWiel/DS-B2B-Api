@@ -38,8 +38,7 @@ namespace WebApiService.Controllers
 
         [HttpGet("{id:int}")]
         public async Task<ActionResult<EmployeeModel>> Get(int id)
-        {
-            Thread.Sleep(5000);
+        {            
             var model = await _service.Get(id);
             if (model == null)
                 return NotFound();
