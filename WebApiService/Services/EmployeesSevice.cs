@@ -31,6 +31,7 @@ namespace WebApiService.Services
 
             return await _context.Employees
                 .Where(u =>
+                    u.IsActive &&
                     (
                         !string.IsNullOrEmpty(search) ? 
                         (                        
@@ -58,21 +59,20 @@ namespace WebApiService.Services
 
         public async Task<EmployeeModel?> Get(int id)
         {
-            return await _context.Employees
-                .Where(u => u.Id == id)
-                .SingleOrDefaultAsync();
+            return await _context.Employees.FindAsync(id);                
         }
 
         public async Task<Boolean> Delete(int id)
         {
-            var item = await _context.Employees.FindAsync(id);
-            if (item == null)
+            var model = await _context.Employees.FindAsync(id);
+            if (model == null)
             {
                 _logger.LogWarning($"Employee id: {id} not found");
                 return false;
             }
 
-            _context.Employees.Remove(item);
+            model.IsActive = false;
+            //_context.Employees.Remove(model);
 
             var result = await _context.SaveChangesAsync();
             
