@@ -9,6 +9,7 @@ using WebApiService.Models;
 using WebApiService.DataTransferObjects;
 using System.Text.RegularExpressions;
 using WebApiService.Extensions;
+using System.Linq;
 
 namespace WebApiService.Services
 {
@@ -25,36 +26,68 @@ namespace WebApiService.Services
 
         public async Task<List<EmployeeListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
         {
-            //login imie nazwisko w tabeli users, employee tylko id
             //var sql = query.ToQueryString();
+
             var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
 
-            return await _context.Employees
+            var query = _context.Employees
+                .Include(u => u.User)
                 .Where(u =>
-                    u.IsActive &&
+                    u.User.IsActive &&
                     (
-                        !string.IsNullOrEmpty(search) ? 
-                        (                        
-                            u.Login.ToLower().Contains(search.ToLower()) ||
-                            u.Name.ToLower().Contains(search.ToLower())                        
+                        !string.IsNullOrEmpty(search) ?
+                        (
+                            u.User.Login.ToLower().Contains(search.ToLower()) ||
+                            u.User.Name.ToLower().Contains(search.ToLower())
                         ) : true
-                    ) 
+                    )
                     &&
                     (
                         type != null && type != 0 ? u.Type == type : true
                     )
-                )
-                .OrderBy(sortColumn ?? nameof(EmployeeListDto.Id), isDescending)
+                );
+
+            query = query.OrderBy(u => u.User.Name, isDescending);
+
+            return await query
+                //.OrderBy(sortColumn ?? nameof(EmployeeListDto.Id), isDescending)
                 .Skip(50 * ((page ?? 1) - 1))
                 .Take(50)
                 .Select(u => new EmployeeListDto
                 {
                     Id = u.Id,
-                    Login = u.Login,
-                    Name = u.Name,
+                    Login = u.User.Login,
+                    Name = u.User.Name,
                     Type = u.Type,
-                })                
-                .ToListAsync();            
+                })
+                .ToListAsync();
+
+            //return await _context.Employees
+            //    .Where(u =>
+            //        u.IsActive &&
+            //        (
+            //            !string.IsNullOrEmpty(search) ? 
+            //            (                        
+            //                u.Login.ToLower().Contains(search.ToLower()) ||
+            //                u.Name.ToLower().Contains(search.ToLower())                        
+            //            ) : true
+            //        ) 
+            //        &&
+            //        (
+            //            type != null && type != 0 ? u.Type == type : true
+            //        )
+            //    )
+            //    .OrderBy(sortColumn ?? nameof(EmployeeListDto.Id), isDescending)
+            //    .Skip(50 * ((page ?? 1) - 1))
+            //    .Take(50)
+            //    .Select(u => new EmployeeListDto
+            //    {
+            //        Id = u.Id,
+            //        Login = u.Login,
+            //        Name = u.Name,
+            //        Type = u.Type,
+            //    })                
+            //    .ToListAsync();            
         }
 
         public async Task<EmployeeModel?> Get(int id)
@@ -71,7 +104,7 @@ namespace WebApiService.Services
                 return false;
             }
 
-            model.IsActive = false;
+            //model.IsActive = false;
             //_context.Employees.Remove(model);
 
             var result = await _context.SaveChangesAsync();
