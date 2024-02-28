@@ -37,9 +37,9 @@ namespace WebApiService.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<EmployeeModel>> Get(int id)
+        public async Task<ActionResult<EmployeeModel>> GetSingle(int id)
         {            
-            var model = await _service.Get(id);
+            var model = await _service.GetSingle(id);
             if (model == null)
                 return NotFound();
 

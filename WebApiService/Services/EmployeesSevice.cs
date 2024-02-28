@@ -25,11 +25,7 @@ namespace WebApiService.Services
         }
 
         public async Task<List<EmployeeListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
-        {
-            //var sql = query.ToQueryString();
-
-            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
-
+        {                    
             var query = _context.Employees
                 .Include(u => u.User)
                 .Where(u =>
@@ -47,10 +43,9 @@ namespace WebApiService.Services
                     )
                 );
 
-            query = query.OrderBy(u => u.User.Name, isDescending);
+            query = ApplySorting(query, sortColumn, sortOrder); 
 
-            return await query
-                //.OrderBy(sortColumn ?? nameof(EmployeeListDto.Id), isDescending)
+            return await query                
                 .Skip(50 * ((page ?? 1) - 1))
                 .Take(50)
                 .Select(u => new EmployeeListDto
@@ -89,23 +84,38 @@ namespace WebApiService.Services
             //    })                
             //    .ToListAsync();            
         }
-
-        public async Task<EmployeeModel?> Get(int id)
+        
+        public async Task<EmployeeDto?> GetSingle(int id)
         {
-            return await _context.Employees.FindAsync(id);                
+            var model = await _context.Employees
+                .Include(u => u.User)
+                .SingleOrDefaultAsync(u => u.Id == id);                
+
+            return model == null ? null : new EmployeeDto
+            {
+                Id = model.Id,
+                Type = model.Type,
+                Login = model.User.Login,
+                Name = model.User.Name,
+                PhoneNumber = model.User.PhoneNumber,
+                Email = model.User.Email,
+                IsMailing = model.IsMailing
+            };
         }
 
         public async Task<Boolean> Delete(int id)
         {
-            var model = await _context.Employees.FindAsync(id);
+            var model = await _context.Employees
+               .Include(u => u.User)
+               .SingleOrDefaultAsync(u => u.Id == id);
+
             if (model == null)
             {
                 _logger.LogWarning($"Employee id: {id} not found");
                 return false;
             }
 
-            //model.IsActive = false;
-            //_context.Employees.Remove(model);
+            model.User.IsActive = false;
 
             var result = await _context.SaveChangesAsync();
             
@@ -114,9 +124,30 @@ namespace WebApiService.Services
 
         public async Task<Boolean> DeleteAll()
         {
-            var result = await _context.Database.ExecuteSqlRawAsync("delete from Employees");
+            var result = await _context.Database.ExecuteSqlRawAsync(@"
+                update Users 
+                set IsActive = 0 
+                from Users 
+                inner join Employees on Users.Id = Employees.UserId
+            ");
 
             return result > 0;            
+        }
+
+        private IQueryable<EmployeeModel> ApplySorting(IQueryable<EmployeeModel> query, string? sortColumn, string? sortOrder)
+        {
+            //var sql = query.ToQueryString();    
+
+            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
+            sortColumn = sortColumn ?? nameof(EmployeeListDto.Id);
+
+            if (sortColumn.Equals(nameof(EmployeeListDto.Login), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.User.Login, isDescending);
+
+            if (sortColumn.Equals(nameof(EmployeeListDto.Name), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.User.Name, isDescending);
+
+            return query.OrderBy(sortColumn, isDescending);
         }
     }
 }

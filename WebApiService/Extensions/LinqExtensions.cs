@@ -61,28 +61,28 @@ namespace WebApiService.Extensions
             return (IQueryable<T>)genericMethod.Invoke(null, new object[] { query, expr });
         }
 
-        //public static IOrderedEnumerable<TSource> OrderByWithDirection<TSource, TKey>(
-        //    this IEnumerable<TSource> source,
-        //    Func<TSource, TKey> keySelector,
-        //    bool descending)
-        //{
-        //    return descending ? source.OrderByDescending(keySelector) : source.OrderBy(keySelector);
-        //}
+        public static IOrderedEnumerable<TSource> OrderByWithDirection<TSource, TKey>(
+            this IEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            bool descending)
+        {
+            return descending ? source.OrderByDescending(keySelector) : source.OrderBy(keySelector);
+        }
 
-        //public static IOrderedQueryable<TSource> OrderByWithDirection<TSource, TKey>(
-        //    this IQueryable<TSource> source,
-        //    Expression<Func<TSource, TKey>> keySelector,
-        //    bool descending)
-        //{
-        //    return descending ? source.OrderByDescending(keySelector) : source.OrderBy(keySelector);
-        //}
+        public static IOrderedQueryable<TSource> OrderByWithDirection<TSource, TKey>(
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, TKey>> keySelector,
+            bool descending)
+        {
+            return descending ? source.OrderByDescending(keySelector) : source.OrderBy(keySelector);
+        }
 
-        //public static IOrderedEnumerable<TSource> ThenByWithDirection<TSource, TKey>(
-        //    this IOrderedEnumerable<TSource> source,
-        //    Func<TSource, TKey> keySelector,
-        //    bool descending)
-        //{
-        //    return descending ? source.ThenByDescending(keySelector) : source.ThenBy(keySelector);
-        //}
+        public static IOrderedEnumerable<TSource> ThenByWithDirection<TSource, TKey>(
+            this IOrderedEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            bool descending)
+        {
+            return descending ? source.ThenByDescending(keySelector) : source.ThenBy(keySelector);
+        }
     }
 }
