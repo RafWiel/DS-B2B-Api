@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json.Linq;
 using WebApiService.Interfaces;
 using WebApiService.DataTransferObjects;
+using System.Net;
 
 namespace WebApiService.Controllers
 {
@@ -44,6 +45,43 @@ namespace WebApiService.Controllers
                 return NotFound();
 
             return Ok(model);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<IdResponseDto>> Add(EmployeeDto dto)
+        {
+            var result = await _service.Add(dto);
+
+            if (result.StatusCode == HttpStatusCode.OK)
+                return Ok(new IdResponseDto
+                {
+                    Id = result.Id
+                });
+
+            if (result.StatusCode == HttpStatusCode.Conflict)
+                return Conflict();
+
+            return BadRequest();
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<IdResponseDto>> Update(EmployeeDto dto)
+        {
+            var result = await _service.Update(dto);
+
+            if (result.StatusCode == HttpStatusCode.OK)
+                return Ok(new IdResponseDto
+                {
+                    Id = result.Id
+                });
+
+            if (result.StatusCode == HttpStatusCode.NotFound)
+                return NotFound();
+
+            if (result.StatusCode == HttpStatusCode.Conflict)
+                return Conflict();
+
+            return BadRequest();
         }
 
         [HttpDelete("{id:int}")]

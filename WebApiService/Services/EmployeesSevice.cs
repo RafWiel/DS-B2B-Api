@@ -10,6 +10,8 @@ using WebApiService.DataTransferObjects;
 using System.Text.RegularExpressions;
 using WebApiService.Extensions;
 using System.Linq;
+using System.Net;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebApiService.Services
 {
@@ -103,6 +105,105 @@ namespace WebApiService.Services
             };
         }
 
+        public async Task<ResponseModel> Add(EmployeeDto dto)
+        {
+            var model = await _context.Employees               
+               .FirstOrDefaultAsync(u => 
+                    u.User.Login.ToLower().Equals(dto.Login.ToLower()) ||
+                    u.User.Email.ToLower().Equals(dto.Email.ToLower()) ||
+                    u.User.PhoneNumber.ToLower().Equals(dto.PhoneNumber.ToLower()) 
+                );
+
+            if (model != null)
+            {
+                _logger.LogWarning($"Employee {dto.Login} already exists");
+
+                return new ResponseModel 
+                { 
+                    StatusCode = HttpStatusCode.Conflict
+                };
+            }
+
+            model = new EmployeeModel
+            {
+                User = new UserModel
+                {
+                    Login = dto.Login,
+                    Name = dto.Name,
+                    PhoneNumber = dto.PhoneNumber,
+                    Email = dto.Email,
+                    IsActive = true
+                },
+                Type = dto.Type,
+                IsMailing = dto.IsMailing
+            };
+
+            _context.Employees.Add(model);
+
+            var result = await _context.SaveChangesAsync();
+
+            return new ResponseModel
+            {
+                Id = result <= 0 ? 0 : model.Id,
+                StatusCode = result <= 0 ? HttpStatusCode.BadRequest : HttpStatusCode.OK
+            };
+        }
+
+        dodaj jeszcze raz uzytkownikow z unikalnymi numerami telefonu
+
+        public async Task<ResponseModel> Update(EmployeeDto dto)
+        {
+            var model = await _context.Employees
+                .Include(u => u.User)
+                .FirstOrDefaultAsync(u =>
+                    u.Id != dto.Id && 
+                    (
+                        u.User.Login.ToLower().Equals(dto.Login.ToLower()) ||
+                        u.User.Email.ToLower().Equals(dto.Email.ToLower()) ||
+                        u.User.PhoneNumber.ToLower().Equals(dto.PhoneNumber.ToLower())
+                    )
+                );
+
+            if (model != null)
+            {
+                _logger.LogWarning($"Employee {dto.Login} already exists");
+
+                return new ResponseModel
+                {
+                    StatusCode = HttpStatusCode.Conflict
+                };
+            }
+
+            model = await _context.Employees
+               .Include(u => u.User)
+               .SingleOrDefaultAsync(u => u.Id == dto.Id);
+
+            if (model == null)
+            {
+                _logger.LogWarning($"Employee id: {dto.Id} not found");
+
+                return new ResponseModel
+                {
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            }            
+
+            model.User.Login = dto.Login;
+            model.User.Name = dto.Name;
+            model.User.PhoneNumber = dto.PhoneNumber;
+            model.User.Email = dto.Email;
+            model.Type = dto.Type;
+            model.IsMailing = dto.IsMailing;
+                       
+            var result = await _context.SaveChangesAsync();
+
+            return new ResponseModel
+            {
+                Id = result <= 0 ? 0 : model.Id,
+                StatusCode = result <= 0 ? HttpStatusCode.BadRequest : HttpStatusCode.OK
+            };
+        }
+
         public async Task<Boolean> Delete(int id)
         {
             var model = await _context.Employees
@@ -148,6 +249,6 @@ namespace WebApiService.Services
                 return query.OrderByWithDirection(u => u.User.Name, isDescending);
 
             return query.OrderBy(sortColumn, isDescending);
-        }
+        }        
     }
 }
