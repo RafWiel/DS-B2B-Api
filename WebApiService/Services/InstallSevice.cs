@@ -23,7 +23,8 @@ namespace WebApiService.Services
         public async Task<Boolean> Install()
         {
             InstallEmployees();
-            
+            InstallCustomers();
+
             await _context.SaveChangesAsync();
 
             return true;
@@ -34,49 +35,7 @@ namespace WebApiService.Services
         private void InstallEmployees()
         {
             if (_context.Employees.Count() > 0)
-                return;
-
-            _context.Employees.Add(new EmployeeModel
-            {
-                User = new UserModel
-                {
-                    Login = "rafal.wielicki",
-                    Name = "Rafał Wielicki",
-                    PhoneNumber = "793008557",
-                    Email = "rafal.wielicki@gmail.com",
-                    IsActive = true
-                },
-                Type = (int)EmployeeType.Administrator,
-                IsMailing = false,                                
-            });
-
-            _context.Employees.Add(new EmployeeModel
-            {
-                User = new UserModel
-                {
-                    Login = "piotr.trybuchowicz",
-                    Name = "Piotr Trybuchowicz",
-                    PhoneNumber = "793008558",
-                    Email = "piotr.trybuchowicz@gmail.com",
-                    IsActive = true,
-                },
-                Type = (int)EmployeeType.Administrator,                
-                IsMailing = false
-            });
-
-            _context.Employees.Add(new EmployeeModel
-            {
-                User = new UserModel
-                {
-                    Login = "andrzej.jurkowski",
-                    Name = "Andrzej Jurkowski",
-                    PhoneNumber = "793008559",
-                    Email = "andrzej.jurkowski@gmail.com",
-                    IsActive = true,
-                },
-                Type = (int)EmployeeType.Supervisor,                
-                IsMailing = false
-            });
+                return;            
 
             var random = new Random();
             for (int i = 1; i <= 100; i++)
@@ -87,11 +46,35 @@ namespace WebApiService.Services
                     {
                         Login = $"employee_{i}",
                         Name = $"Name {i}",
-                        PhoneNumber = $"123456789",
-                        Email = $"employee@email.com",
+                        PhoneNumber = $"123456{i:000}",
+                        Email = $"employee_{i}@email.com",
                         IsActive = true,
                     },
                     Type = (int)random.Next(1, 3),                    
+                    IsMailing = false
+                });
+            }
+        }
+
+        private void InstallCustomers()
+        {
+            if (_context.Customers.Count() > 0)
+                return;
+
+            var random = new Random();
+            for (int i = 1; i <= 100; i++)
+            {
+                _context.Customers.Add(new CustomerModel
+                {
+                    User = new UserModel
+                    {
+                        Login = $"customer_{i}",
+                        Name = $"Name {i}",
+                        PhoneNumber = $"654321{i:000}",
+                        Email = $"customer_{i}@email.com",
+                        IsActive = true,
+                    },
+                    Type = (int)random.Next(2, 3),
                     IsMailing = false
                 });
             }

@@ -15,20 +15,20 @@ using Microsoft.AspNetCore.Identity;
 
 namespace WebApiService.Services
 {
-    public class EmployeesService : IEmployeesService
+    public class CustomersService : ICustomersService
     {
         private readonly DataContext _context;
-        private readonly ILogger<IEmployeesService> _logger;
+        private readonly ILogger<ICustomersService> _logger;
 
-        public EmployeesService(DataContext context, ILogger<IEmployeesService> logger)
+        public CustomersService(DataContext context, ILogger<ICustomersService> logger)
         {
             _context = context;
             _logger = logger;
         }
 
-        public async Task<List<EmployeeListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
+        public async Task<List<CustomerListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
         {                    
-            var query = _context.Employees
+            var query = _context.Customers
                 .Include(u => u.User)
                 .Where(u =>
                     u.User.IsActive &&
@@ -50,50 +50,23 @@ namespace WebApiService.Services
             return await query                
                 .Skip(50 * ((page ?? 1) - 1))
                 .Take(50)
-                .Select(u => new EmployeeListDto
+                .Select(u => new CustomerListDto
                 {
                     Id = u.Id,
                     Login = u.User.Login,
                     Name = u.User.Name,
                     Type = u.Type,
                 })
-                .ToListAsync();
-
-            //return await _context.Employees
-            //    .Where(u =>
-            //        u.IsActive &&
-            //        (
-            //            !string.IsNullOrEmpty(search) ? 
-            //            (                        
-            //                u.Login.ToLower().Contains(search.ToLower()) ||
-            //                u.Name.ToLower().Contains(search.ToLower())                        
-            //            ) : true
-            //        ) 
-            //        &&
-            //        (
-            //            type != null && type != 0 ? u.Type == type : true
-            //        )
-            //    )
-            //    .OrderBy(sortColumn ?? nameof(EmployeeListDto.Id), isDescending)
-            //    .Skip(50 * ((page ?? 1) - 1))
-            //    .Take(50)
-            //    .Select(u => new EmployeeListDto
-            //    {
-            //        Id = u.Id,
-            //        Login = u.Login,
-            //        Name = u.Name,
-            //        Type = u.Type,
-            //    })                
-            //    .ToListAsync();            
+                .ToListAsync();                    
         }
         
-        public async Task<EmployeeDto?> GetSingle(int id)
+        public async Task<CustomerDto?> GetSingle(int id)
         {
-            var model = await _context.Employees
+            var model = await _context.Customers
                 .Include(u => u.User)
                 .SingleOrDefaultAsync(u => u.Id == id);                
 
-            return model == null ? null : new EmployeeDto
+            return model == null ? null : new CustomerDto
             {
                 Id = model.Id,
                 Type = model.Type,
@@ -105,9 +78,9 @@ namespace WebApiService.Services
             };
         }
 
-        public async Task<ResponseModel> Add(EmployeeDto dto)
+        public async Task<ResponseModel> Add(CustomerDto dto)
         {
-            var model = await _context.Employees
+            var model = await _context.Customers
                .FirstOrDefaultAsync(u =>
                     u.User.IsActive &&
                     (
@@ -119,7 +92,7 @@ namespace WebApiService.Services
 
             if (model != null)
             {
-                _logger.LogWarning($"Employee {dto.Login} already exists");
+                _logger.LogWarning($"Customer {dto.Login} already exists");
 
                 return new ResponseModel 
                 { 
@@ -127,7 +100,7 @@ namespace WebApiService.Services
                 };
             }
 
-            model = new EmployeeModel
+            model = new CustomerModel
             {
                 User = new UserModel
                 {
@@ -141,7 +114,7 @@ namespace WebApiService.Services
                 IsMailing = dto.IsMailing
             };
 
-            _context.Employees.Add(model);
+            _context.Customers.Add(model);
 
             var result = await _context.SaveChangesAsync();
 
@@ -152,9 +125,9 @@ namespace WebApiService.Services
             };
         }
 
-        public async Task<ResponseModel> Update(EmployeeDto dto)
+        public async Task<ResponseModel> Update(CustomerDto dto)
         {
-            var model = await _context.Employees
+            var model = await _context.Customers
                 .FirstOrDefaultAsync(u =>
                     u.Id != dto.Id && 
                     u.User.IsActive &&
@@ -167,21 +140,21 @@ namespace WebApiService.Services
 
             if (model != null)
             {
-                _logger.LogWarning($"Employee {dto.Login} login, email, phone number conflict");
-
+                _logger.LogWarning($"Customer {dto.Login} login, email, phone number conflict");
+                
                 return new ResponseModel
                 {
                     StatusCode = HttpStatusCode.Conflict
                 };
             }
 
-            model = await _context.Employees
+            model = await _context.Customers
                .Include(u => u.User)
                .SingleOrDefaultAsync(u => u.Id == dto.Id);
 
             if (model == null)
             {
-                _logger.LogWarning($"Employee id: {dto.Id} not found");
+                _logger.LogWarning($"Customer id: {dto.Id} not found");
 
                 return new ResponseModel
                 {
@@ -208,11 +181,12 @@ namespace WebApiService.Services
         public async Task<Boolean> Delete(int id)
         {
             var model = await _context.Employees
+               //.Include(u => u.User)
                .SingleOrDefaultAsync(u => u.Id == id && u.User.IsActive);
 
             if (model == null)
             {
-                _logger.LogWarning($"Employee id: {id} not found");
+                _logger.LogWarning($"Customer id: {id} not found");
                 return false;
             }
 
@@ -229,23 +203,23 @@ namespace WebApiService.Services
                 update Users 
                 set IsActive = 0 
                 from Users 
-                inner join Employees on Users.Id = Employees.UserId
+                inner join Customers on Users.Id = Customers.UserId
             ");
 
             return result > 0;            
         }
 
-        private IQueryable<EmployeeModel> ApplySorting(IQueryable<EmployeeModel> query, string? sortColumn, string? sortOrder)
+        private IQueryable<CustomerModel> ApplySorting(IQueryable<CustomerModel> query, string? sortColumn, string? sortOrder)
         {
             //var sql = query.ToQueryString();    
 
             var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
             sortColumn = sortColumn ?? nameof(EmployeeListDto.Id);
 
-            if (sortColumn.Equals(nameof(EmployeeListDto.Login), StringComparison.OrdinalIgnoreCase))
+            if (sortColumn.Equals(nameof(CustomerListDto.Login), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.User.Login, isDescending);
 
-            if (sortColumn.Equals(nameof(EmployeeListDto.Name), StringComparison.OrdinalIgnoreCase))
+            if (sortColumn.Equals(nameof(CustomerListDto.Name), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.User.Name, isDescending);
 
             return query.OrderBy(sortColumn, isDescending);

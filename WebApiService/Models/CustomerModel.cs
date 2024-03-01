@@ -10,25 +10,20 @@ namespace WebApiService.Models
         [Key]
         public int Id { get; set; }
 
+        public int? UserId { get; set; }
+
+        [Required]
+        public UserModel User { get; set; }
+
+        //public int? CompanyId { get; set; }
+
+        //[Required]
+        //public CompanyModel Company { get; set; }
+
         [Required]
         public int Type { get; set; }
-       
-        [Required]
-        [StringLength(64)]
-        public string Login { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(64)]
-        public string Name { get; set; } = string.Empty;
-
-        [StringLength(32)]
-        public string? PhoneNumber { get; set; }
-
-        [StringLength(64)]
-        public string? Email { get; set; }
-        
-        public bool IsActive { get; set; }
-        
         public bool IsMailing { get; set; }
     }
 }

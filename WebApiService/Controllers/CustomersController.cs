@@ -10,20 +10,20 @@ using System.Net;
 namespace WebApiService.Controllers
 {
     [ApiController]
-    [Route("api/employees")]
-    public class EmployeesController : ControllerBase
+    [Route("api/customers")]
+    public class CustomersController : ControllerBase
     {
-        private readonly IEmployeesService _service;
-        private readonly ILogger<EmployeesController> _logger;
+        private readonly ICustomersService _service;
+        private readonly ILogger<CustomersController> _logger;
 
-        public EmployeesController(IEmployeesService service, ILogger<EmployeesController> logger)
+        public CustomersController(ICustomersService service, ILogger<CustomersController> logger)
         {
             _service = service;
             _logger = logger;
         }
 
         [HttpGet]        
-        public async Task<ActionResult<List<EmployeeListDto>>> Get(
+        public async Task<ActionResult<List<CustomerListDto>>> Get(
             string? search, 
             int? type,
             [FromQuery(Name = "sort-column")] string? sortColumn,
@@ -38,7 +38,7 @@ namespace WebApiService.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<ActionResult<EmployeeDto>> GetSingle(int id)
+        public async Task<ActionResult<CustomerDto>> GetSingle(int id)
         {            
             var dto = await _service.GetSingle(id);
             if (dto == null)
@@ -48,7 +48,7 @@ namespace WebApiService.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<IdResponseDto>> Add(EmployeeDto dto)
+        public async Task<ActionResult<IdResponseDto>> Add(CustomerDto dto)
         {
             var result = await _service.Add(dto);
 
@@ -65,7 +65,7 @@ namespace WebApiService.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<IdResponseDto>> Update(EmployeeDto dto)
+        public async Task<ActionResult<IdResponseDto>> Update(CustomerDto dto)
         {
             var result = await _service.Update(dto);
 
