@@ -208,7 +208,8 @@ namespace WebApiService.Services
         public async Task<Boolean> Delete(int id)
         {
             var model = await _context.Employees
-               .SingleOrDefaultAsync(u => u.Id == id && u.User.IsActive);
+                .Include(u => u.User)
+                .SingleOrDefaultAsync(u => u.Id == id && u.User.IsActive);
 
             if (model == null)
             {

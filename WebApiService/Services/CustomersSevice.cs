@@ -180,8 +180,8 @@ namespace WebApiService.Services
 
         public async Task<Boolean> Delete(int id)
         {
-            var model = await _context.Employees
-               //.Include(u => u.User)
+            var model = await _context.Customers
+               .Include(u => u.User)
                .SingleOrDefaultAsync(u => u.Id == id && u.User.IsActive);
 
             if (model == null)
