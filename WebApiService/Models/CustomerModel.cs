@@ -14,12 +14,7 @@ namespace WebApiService.Models
 
         [Required]
         public UserModel User { get; set; }
-
-        //public int? CompanyId { get; set; }
-
-        //[Required]
-        //public CompanyModel Company { get; set; }
-
+        
         [Required]
         public int Type { get; set; }
 

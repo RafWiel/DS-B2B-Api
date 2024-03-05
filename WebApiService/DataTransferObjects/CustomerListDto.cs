@@ -4,9 +4,18 @@ namespace WebApiService.DataTransferObjects
 {
     public class CustomerListDto
     {
-        public int Id { get; set; }        
+        [Required]
+        public int Id { get; set; }
+        
+        [Required]
+        [StringLength(64)]
         public string Login { get; set; }
+        
+        [Required]
+        [StringLength(64)]
         public string Name { get; set; }
+
+        [Required]
         public int Type { get; set; }
     }
 }

@@ -1,0 +1,225 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata.Ecma335;
+using System.Collections.Generic;
+using WebApiService.Interfaces;
+using WebApiService.Enums;
+using WebApiService.Models;
+using WebApiService.DataTransferObjects;
+using System.Text.RegularExpressions;
+using WebApiService.Extensions;
+using System.Linq;
+using System.Net;
+using Microsoft.AspNetCore.Identity;
+
+namespace WebApiService.Services
+{
+    public class CompaniesService : ICompaniesService
+    {
+        private readonly DataContext _context;
+        private readonly ILogger<ICompaniesService> _logger;
+
+        public CompaniesService(DataContext context, ILogger<ICompaniesService> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        //public async Task<List<CustomerListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
+        //{                    
+        //    var query = _context.Customers
+        //        .Include(u => u.User)
+        //        .Where(u =>
+        //            u.User.IsActive &&
+        //            (
+        //                !string.IsNullOrEmpty(search) ?
+        //                (
+        //                    u.User.Login.ToLower().Contains(search.ToLower()) ||
+        //                    u.User.Name.ToLower().Contains(search.ToLower())
+        //                ) : true
+        //            )
+        //            &&
+        //            (
+        //                type != null && type != 0 ? u.Type == type : true
+        //            )
+        //        );
+
+        //    query = ApplySorting(query, sortColumn, sortOrder); 
+
+        //    return await query                
+        //        .Skip(50 * ((page ?? 1) - 1))
+        //        .Take(50)
+        //        .Select(u => new CustomerListDto
+        //        {
+        //            Id = u.Id,
+        //            Login = u.User.Login,
+        //            Name = u.User.Name,
+        //            Type = u.Type,
+        //        })
+        //        .ToListAsync();                    
+        //}
+        
+        //public async Task<CustomerDto?> GetSingle(int id)
+        //{
+        //    var model = await _context.Customers
+        //        .Include(u => u.User)
+        //        .SingleOrDefaultAsync(u => u.Id == id);                
+
+        //    return model == null ? null : new CustomerDto
+        //    {
+        //        Id = model.Id,
+        //        Type = model.Type,
+        //        Login = model.User.Login,
+        //        Name = model.User.Name,
+        //        PhoneNumber = model.User.PhoneNumber,
+        //        Email = model.User.Email,
+        //        IsMailing = model.IsMailing
+        //    };
+        //}
+
+        public async Task<ResponseModel> Add(CompanyDto dto)
+        {
+            var model = await _context.Companies
+               .FirstOrDefaultAsync(u =>
+                    u.IsActive &&
+                    (
+                        u.ErpId == dto.ErpId ||
+                        u.Name.ToLower().Equals(dto.Name.ToLower()) ||
+                        u.TaxNumber.ToLower().Equals(dto.TaxNumber.ToLower())
+                    )
+                );
+
+            if (model != null)
+            {
+                _logger.LogWarning($"Company {dto.Name} already exists");
+
+                return new ResponseModel 
+                { 
+                    StatusCode = HttpStatusCode.Conflict
+                };
+            }
+
+            model = new CompanyModel
+            {
+                ErpId = dto.ErpId,
+                Name = dto.Name,
+                TaxNumber = dto.TaxNumber,
+                Address = dto.Address,
+                Postal = dto.Postal,
+                City = dto.City,
+                IsActive = true
+            };
+
+            _context.Companies.Add(model);
+
+            var result = await _context.SaveChangesAsync();
+
+            return new ResponseModel
+            {
+                Id = result <= 0 ? 0 : model.Id,
+                StatusCode = result <= 0 ? HttpStatusCode.BadRequest : HttpStatusCode.OK
+            };
+        }
+
+        //public async Task<ResponseModel> Update(CustomerDto dto)
+        //{
+        //    var model = await _context.Customers
+        //        .FirstOrDefaultAsync(u =>
+        //            u.Id != dto.Id && 
+        //            u.User.IsActive &&
+        //            (
+        //                u.User.Login.ToLower().Equals(dto.Login.ToLower()) ||
+        //                u.User.Email.ToLower().Equals(dto.Email.ToLower()) ||
+        //                u.User.PhoneNumber.ToLower().Equals(dto.PhoneNumber.ToLower())
+        //            )
+        //        );
+
+        //    if (model != null)
+        //    {
+        //        _logger.LogWarning($"Customer {dto.Login} login, email, phone number conflict");
+                
+        //        return new ResponseModel
+        //        {
+        //            StatusCode = HttpStatusCode.Conflict
+        //        };
+        //    }
+
+        //    model = await _context.Customers
+        //       .Include(u => u.User)
+        //       .SingleOrDefaultAsync(u => u.Id == dto.Id);
+
+        //    if (model == null)
+        //    {
+        //        _logger.LogWarning($"Customer id: {dto.Id} not found");
+
+        //        return new ResponseModel
+        //        {
+        //            StatusCode = HttpStatusCode.NotFound
+        //        };
+        //    }            
+
+        //    model.User.Login = dto.Login;
+        //    model.User.Name = dto.Name;
+        //    model.User.PhoneNumber = dto.PhoneNumber;
+        //    model.User.Email = dto.Email;
+        //    model.Type = dto.Type;
+        //    model.IsMailing = dto.IsMailing;
+                       
+        //    var result = await _context.SaveChangesAsync();
+            
+        //    return new ResponseModel
+        //    {
+        //        Id = model.Id,
+        //        StatusCode = HttpStatusCode.OK
+        //    };
+        //}
+
+        //public async Task<Boolean> Delete(int id)
+        //{
+        //    var model = await _context.Customers
+        //       .Include(u => u.User)
+        //       .SingleOrDefaultAsync(u => u.Id == id && u.User.IsActive);
+
+        //    if (model == null)
+        //    {
+        //        _logger.LogWarning($"Customer id: {id} not found");
+        //        return false;
+        //    }
+
+        //    model.User.IsActive = false;
+
+        //    var result = await _context.SaveChangesAsync();
+            
+        //    return result > 0;
+        //}
+
+        //public async Task<Boolean> DeleteAll()
+        //{
+        //    var result = await _context.Database.ExecuteSqlRawAsync(@"
+        //        update Users 
+        //        set IsActive = 0 
+        //        from Users 
+        //        inner join Customers on Users.Id = Customers.UserId
+        //    ");
+
+        //    return result > 0;            
+        //}
+
+        //private IQueryable<CustomerModel> ApplySorting(IQueryable<CustomerModel> query, string? sortColumn, string? sortOrder)
+        //{
+        //    //var sql = query.ToQueryString();    
+
+        //    var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
+        //    sortColumn = sortColumn ?? nameof(EmployeeListDto.Id);
+
+        //    if (sortColumn.Equals(nameof(CustomerListDto.Login), StringComparison.OrdinalIgnoreCase))
+        //        return query.OrderByWithDirection(u => u.User.Login, isDescending);
+
+        //    if (sortColumn.Equals(nameof(CustomerListDto.Name), StringComparison.OrdinalIgnoreCase))
+        //        return query.OrderByWithDirection(u => u.User.Name, isDescending);
+
+        //    return query.OrderBy(sortColumn, isDescending);
+        //}        
+    }
+}

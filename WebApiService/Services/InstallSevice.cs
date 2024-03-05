@@ -56,6 +56,10 @@ namespace WebApiService.Services
             }
         }
 
+        #endregion
+
+        #region Customers
+
         private void InstallCustomers()
         {
             if (_context.Customers.Count() > 0)
@@ -80,6 +84,31 @@ namespace WebApiService.Services
             }
         }
 
-        #endregion        
+        #endregion
+
+        #region Companies
+
+        private void InstallCompanies()
+        {
+            if (_context.Companies.Count() > 0)
+                return;
+
+            var random = new Random();
+            for (int i = 1; i <= 10; i++)
+            {
+                _context.Companies.Add(new CompanyModel
+                {
+                    ErpId = i,
+                    Name = $"Company_{i}",
+                    TaxNumber = $"12345678{i:00}",
+                    Address = $"Address_{i}",
+                    Postal = "00-000",
+                    City = "City",
+                    IsActive = true
+                });
+            }
+        }
+
+        #endregion  
     }
 }

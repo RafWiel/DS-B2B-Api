@@ -51,6 +51,7 @@ try
 
     builder.Services.AddScoped<IInstallService, InstallService>();
     builder.Services.AddScoped<IEmployeesService, EmployeesService>();
+    builder.Services.AddScoped<ICompaniesService, CompaniesService>();
     builder.Services.AddScoped<ICustomersService, CustomersService>();
     builder.Services.AddTransient<GlobalExceptionsMiddleware>();
 

@@ -7,6 +7,7 @@ namespace WebApiService.Data
     {
         public DbSet<EmployeeModel> Employees { get; set; }
         public DbSet<CustomerModel> Customers { get; set; }
+        public DbSet<CompanyModel> Companies { get; set; }
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
