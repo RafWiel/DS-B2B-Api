@@ -26,57 +26,54 @@ namespace WebApiService.Services
             _logger = logger;
         }
 
-        //public async Task<List<CustomerListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
-        //{                    
-        //    var query = _context.Customers
-        //        .Include(u => u.User)
-        //        .Where(u =>
-        //            u.User.IsActive &&
-        //            (
-        //                !string.IsNullOrEmpty(search) ?
-        //                (
-        //                    u.User.Login.ToLower().Contains(search.ToLower()) ||
-        //                    u.User.Name.ToLower().Contains(search.ToLower())
-        //                ) : true
-        //            )
-        //            &&
-        //            (
-        //                type != null && type != 0 ? u.Type == type : true
-        //            )
-        //        );
+        public async Task<List<CompanyListDto>> Get(string? search, string? sortColumn, string? sortOrder, int? page)
+        {
+            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
+            sortColumn = sortColumn ?? nameof(EmployeeListDto.Id);
 
-        //    query = ApplySorting(query, sortColumn, sortOrder); 
+            return await _context.Companies
+                .Where(u =>
+                    u.IsActive &&
+                    (
+                        !string.IsNullOrEmpty(search) ?
+                        (
+                            u.ErpId.ToString().ToLower().Contains(search.ToLower()) ||
+                            u.Name.ToLower().Contains(search.ToLower()) ||
+                            u.TaxNumber.ToLower().Contains(search.ToLower()) ||
+                            u.City.ToLower().Contains(search.ToLower())
+                        ) : true
+                    )                    
+                )
+                .OrderBy(sortColumn ?? nameof(CompanyModel.Id), isDescending)
+                .Skip(50 * ((page ?? 1) - 1))
+                .Take(50)
+                .Select(u => new CompanyListDto
+                {
+                    Id = u.Id,
+                    ErpId = u.ErpId,
+                    Name = u.Name,
+                    TaxNumber = u.TaxNumber,
+                    City = u.City
+                })
+                .ToListAsync();
+        }
 
-        //    return await query                
-        //        .Skip(50 * ((page ?? 1) - 1))
-        //        .Take(50)
-        //        .Select(u => new CustomerListDto
-        //        {
-        //            Id = u.Id,
-        //            Login = u.User.Login,
-        //            Name = u.User.Name,
-        //            Type = u.Type,
-        //        })
-        //        .ToListAsync();                    
-        //}
-        
-        //public async Task<CustomerDto?> GetSingle(int id)
-        //{
-        //    var model = await _context.Customers
-        //        .Include(u => u.User)
-        //        .SingleOrDefaultAsync(u => u.Id == id);                
+        public async Task<CompanyDto?> GetSingle(int id)
+        {
+            var model = await _context.Companies                
+                .SingleOrDefaultAsync(u => u.Id == id);
 
-        //    return model == null ? null : new CustomerDto
-        //    {
-        //        Id = model.Id,
-        //        Type = model.Type,
-        //        Login = model.User.Login,
-        //        Name = model.User.Name,
-        //        PhoneNumber = model.User.PhoneNumber,
-        //        Email = model.User.Email,
-        //        IsMailing = model.IsMailing
-        //    };
-        //}
+            return model == null ? null : new CompanyDto
+            {
+                Id = model.Id,
+                ErpId = model.ErpId,
+                Name = model.Name,
+                TaxNumber = model.TaxNumber,
+                Address = model.Address,
+                Postal = model.Postal,
+                City = model.City,
+            };
+        }
 
         public async Task<ResponseModel> Add(CompanyDto dto)
         {
@@ -122,104 +119,84 @@ namespace WebApiService.Services
             };
         }
 
-        //public async Task<ResponseModel> Update(CustomerDto dto)
-        //{
-        //    var model = await _context.Customers
-        //        .FirstOrDefaultAsync(u =>
-        //            u.Id != dto.Id && 
-        //            u.User.IsActive &&
-        //            (
-        //                u.User.Login.ToLower().Equals(dto.Login.ToLower()) ||
-        //                u.User.Email.ToLower().Equals(dto.Email.ToLower()) ||
-        //                u.User.PhoneNumber.ToLower().Equals(dto.PhoneNumber.ToLower())
-        //            )
-        //        );
+        public async Task<ResponseModel> Update(CompanyDto dto)
+        {
+            var model = await _context.Companies
+                .FirstOrDefaultAsync(u =>
+                    u.Id != dto.Id &&
+                    u.IsActive &&
+                    (
+                        u.ErpId == dto.ErpId ||
+                        u.Name.ToLower().Equals(dto.Name.ToLower()) ||
+                        u.TaxNumber.ToLower().Equals(dto.TaxNumber.ToLower())
+                    )
+                );
 
-        //    if (model != null)
-        //    {
-        //        _logger.LogWarning($"Customer {dto.Login} login, email, phone number conflict");
-                
-        //        return new ResponseModel
-        //        {
-        //            StatusCode = HttpStatusCode.Conflict
-        //        };
-        //    }
+            if (model != null)
+            {
+                _logger.LogWarning($"Company {dto.Name} ERP Id, name, tax number conflict");
 
-        //    model = await _context.Customers
-        //       .Include(u => u.User)
-        //       .SingleOrDefaultAsync(u => u.Id == dto.Id);
+                return new ResponseModel
+                {
+                    StatusCode = HttpStatusCode.Conflict
+                };
+            }
 
-        //    if (model == null)
-        //    {
-        //        _logger.LogWarning($"Customer id: {dto.Id} not found");
+            model = await _context.Companies
+               .SingleOrDefaultAsync(u => u.Id == dto.Id);
 
-        //        return new ResponseModel
-        //        {
-        //            StatusCode = HttpStatusCode.NotFound
-        //        };
-        //    }            
+            if (model == null)
+            {
+                _logger.LogWarning($"Company id: {dto.Id} not found");
 
-        //    model.User.Login = dto.Login;
-        //    model.User.Name = dto.Name;
-        //    model.User.PhoneNumber = dto.PhoneNumber;
-        //    model.User.Email = dto.Email;
-        //    model.Type = dto.Type;
-        //    model.IsMailing = dto.IsMailing;
-                       
-        //    var result = await _context.SaveChangesAsync();
-            
-        //    return new ResponseModel
-        //    {
-        //        Id = model.Id,
-        //        StatusCode = HttpStatusCode.OK
-        //    };
-        //}
+                return new ResponseModel
+                {
+                    StatusCode = HttpStatusCode.NotFound
+                };
+            }
 
-        //public async Task<Boolean> Delete(int id)
-        //{
-        //    var model = await _context.Customers
-        //       .Include(u => u.User)
-        //       .SingleOrDefaultAsync(u => u.Id == id && u.User.IsActive);
+            model.ErpId = dto.ErpId;
+            model.Name = dto.Name;
+            model.TaxNumber = dto.TaxNumber;
+            model.Address = dto.Address;
+            model.Postal = dto.Postal;
+            model.City = dto.City;
 
-        //    if (model == null)
-        //    {
-        //        _logger.LogWarning($"Customer id: {id} not found");
-        //        return false;
-        //    }
+            var result = await _context.SaveChangesAsync();
 
-        //    model.User.IsActive = false;
+            return new ResponseModel
+            {
+                Id = model.Id,
+                StatusCode = HttpStatusCode.OK
+            };
+        }
 
-        //    var result = await _context.SaveChangesAsync();
-            
-        //    return result > 0;
-        //}
+        public async Task<Boolean> Delete(int id)
+        {
+            var model = await _context.Companies
+               .SingleOrDefaultAsync(u => u.Id == id && u.IsActive);
 
-        //public async Task<Boolean> DeleteAll()
-        //{
-        //    var result = await _context.Database.ExecuteSqlRawAsync(@"
-        //        update Users 
-        //        set IsActive = 0 
-        //        from Users 
-        //        inner join Customers on Users.Id = Customers.UserId
-        //    ");
+            if (model == null)
+            {
+                _logger.LogWarning($"Company id: {id} not found");
+                return false;
+            }
 
-        //    return result > 0;            
-        //}
+            model.IsActive = false;
 
-        //private IQueryable<CustomerModel> ApplySorting(IQueryable<CustomerModel> query, string? sortColumn, string? sortOrder)
-        //{
-        //    //var sql = query.ToQueryString();    
+            var result = await _context.SaveChangesAsync();
 
-        //    var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
-        //    sortColumn = sortColumn ?? nameof(EmployeeListDto.Id);
+            return result > 0;
+        }
 
-        //    if (sortColumn.Equals(nameof(CustomerListDto.Login), StringComparison.OrdinalIgnoreCase))
-        //        return query.OrderByWithDirection(u => u.User.Login, isDescending);
+        public async Task<Boolean> DeleteAll()
+        {
+            var result = await _context.Database.ExecuteSqlRawAsync(@"
+                update Companies 
+                set IsActive = 0                 
+            ");
 
-        //    if (sortColumn.Equals(nameof(CustomerListDto.Name), StringComparison.OrdinalIgnoreCase))
-        //        return query.OrderByWithDirection(u => u.User.Name, isDescending);
-
-        //    return query.OrderBy(sortColumn, isDescending);
-        //}        
+            return result > 0;
+        }
     }
 }

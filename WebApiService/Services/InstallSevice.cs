@@ -23,7 +23,8 @@ namespace WebApiService.Services
         public async Task<Boolean> Install()
         {
             InstallEmployees();
-            InstallCustomers();
+            InstallCompanies();
+            InstallCustomers();            
 
             await _context.SaveChangesAsync();
 

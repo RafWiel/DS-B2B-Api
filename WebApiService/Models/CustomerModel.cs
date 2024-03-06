@@ -20,5 +20,7 @@ namespace WebApiService.Models
 
         [Required]
         public bool IsMailing { get; set; }
+
+        public int CompanyModelId { get; set; }
     }
 }
