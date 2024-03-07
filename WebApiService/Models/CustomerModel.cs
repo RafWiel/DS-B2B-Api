@@ -9,8 +9,10 @@ namespace WebApiService.Models
     {
         [Key]
         public int Id { get; set; }
-
+        
         public int? UserId { get; set; }
+
+        public int? CompanyModelId { get; set; }
 
         [Required]
         public UserModel User { get; set; }
@@ -19,8 +21,6 @@ namespace WebApiService.Models
         public int Type { get; set; }
 
         [Required]
-        public bool IsMailing { get; set; }
-
-        public int CompanyModelId { get; set; }
+        public bool IsMailing { get; set; }       
     }
 }

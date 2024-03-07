@@ -12,8 +12,8 @@ using WebApiService.Data;
 namespace WebApiService.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240301072833_AddCustomers")]
-    partial class AddCustomers
+    [Migration("20240307070956_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,6 +24,50 @@ namespace WebApiService.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
+            modelBuilder.Entity("WebApiService.Models.CompanyModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<int>("ErpId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("Postal")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
+                    b.Property<string>("TaxNumber")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Companies");
+                });
+
             modelBuilder.Entity("WebApiService.Models.CustomerModel", b =>
                 {
                     b.Property<int>("Id")
@@ -31,6 +75,9 @@ namespace WebApiService.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int?>("CompanyModelId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsMailing")
                         .HasColumnType("bit");
@@ -43,6 +90,8 @@ namespace WebApiService.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CompanyModelId");
 
                     b.HasIndex("UserId");
 
@@ -112,6 +161,10 @@ namespace WebApiService.Migrations
 
             modelBuilder.Entity("WebApiService.Models.CustomerModel", b =>
                 {
+                    b.HasOne("WebApiService.Models.CompanyModel", null)
+                        .WithMany("Customers")
+                        .HasForeignKey("CompanyModelId");
+
                     b.HasOne("WebApiService.Models.UserModel", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
@@ -130,6 +183,11 @@ namespace WebApiService.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("WebApiService.Models.CompanyModel", b =>
+                {
+                    b.Navigation("Customers");
                 });
 #pragma warning restore 612, 618
         }

@@ -36,9 +36,9 @@ namespace WebApiService.Services
                     u.IsActive &&
                     (
                         !string.IsNullOrEmpty(search) ?
-                        (
-                            u.ErpId.ToString().ToLower().Contains(search.ToLower()) ||
+                        (                            
                             u.Name.ToLower().Contains(search.ToLower()) ||
+                            u.ErpId.ToString().ToLower().Contains(search.ToLower()) ||
                             u.TaxNumber.ToLower().Contains(search.ToLower()) ||
                             u.City.ToLower().Contains(search.ToLower())
                         ) : true
@@ -60,18 +60,28 @@ namespace WebApiService.Services
 
         public async Task<CompanyDto?> GetSingle(int id)
         {
-            var model = await _context.Companies                
+            var model = await _context.Companies  
+                .Include(u => u.Customers)
+                .ThenInclude(u => u.User)
                 .SingleOrDefaultAsync(u => u.Id == id);
 
             return model == null ? null : new CompanyDto
             {
-                Id = model.Id,
-                ErpId = model.ErpId,
+                Id = model.Id,                
                 Name = model.Name,
+                ErpId = model.ErpId,
                 TaxNumber = model.TaxNumber,
                 Address = model.Address,
                 Postal = model.Postal,
                 City = model.City,
+                Customers = model.Customers
+                    .Select(u => new CustomerCompanyListDto
+                    {
+                        Id = u.Id,
+                        Name = u.User.Name,
+                        PhoneNumber = u.User.PhoneNumber,
+                    })
+                    .ToList()
             };
         }
 
@@ -80,9 +90,9 @@ namespace WebApiService.Services
             var model = await _context.Companies
                .FirstOrDefaultAsync(u =>
                     u.IsActive &&
-                    (
-                        u.ErpId == dto.ErpId ||
+                    (                        
                         u.Name.ToLower().Equals(dto.Name.ToLower()) ||
+                        u.ErpId == dto.ErpId ||
                         u.TaxNumber.ToLower().Equals(dto.TaxNumber.ToLower())
                     )
                 );
@@ -99,8 +109,8 @@ namespace WebApiService.Services
 
             model = new CompanyModel
             {
-                ErpId = dto.ErpId,
                 Name = dto.Name,
+                ErpId = dto.ErpId,                
                 TaxNumber = dto.TaxNumber,
                 Address = dto.Address,
                 Postal = dto.Postal,
@@ -125,9 +135,9 @@ namespace WebApiService.Services
                 .FirstOrDefaultAsync(u =>
                     u.Id != dto.Id &&
                     u.IsActive &&
-                    (
-                        u.ErpId == dto.ErpId ||
+                    (                        
                         u.Name.ToLower().Equals(dto.Name.ToLower()) ||
+                        u.ErpId == dto.ErpId ||
                         u.TaxNumber.ToLower().Equals(dto.TaxNumber.ToLower())
                     )
                 );
@@ -154,9 +164,9 @@ namespace WebApiService.Services
                     StatusCode = HttpStatusCode.NotFound
                 };
             }
-
-            model.ErpId = dto.ErpId;
+            
             model.Name = dto.Name;
+            model.ErpId = dto.ErpId;
             model.TaxNumber = dto.TaxNumber;
             model.Address = dto.Address;
             model.Postal = dto.Postal;

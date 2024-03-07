@@ -1,16 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using WebApiService.Interfaces;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using WebApiService.Models;
 
 namespace WebApiService.DataTransferObjects
 {
     public class CompanyDto
-    {        
-        [Required]
+    {
+        [Key]
         public int Id { get; set; }
 
         [Required]
         public int ErpId { get; set; }
-      
+        
         [Required]
         [StringLength(64)]
         public string Name { get; set; }
@@ -32,5 +34,7 @@ namespace WebApiService.DataTransferObjects
         public string City { get; set; }
 
         public bool IsActive { get; set; }
+
+        public List<CustomerCompanyListDto> Customers { get; set; }
     }
 }

@@ -24,7 +24,10 @@ namespace WebApiService.Services
         {
             InstallEmployees();
             InstallCompanies();
-            InstallCustomers();            
+                      
+            await _context.SaveChangesAsync();
+
+            InstallCustomers();
 
             await _context.SaveChangesAsync();
 
@@ -71,6 +74,7 @@ namespace WebApiService.Services
             {
                 _context.Customers.Add(new CustomerModel
                 {
+                    CompanyModelId = ((i - 1) / 10) + 1,
                     User = new UserModel
                     {
                         Login = $"customer_{i}",

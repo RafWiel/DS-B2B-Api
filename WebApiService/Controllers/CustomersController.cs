@@ -53,10 +53,12 @@ namespace WebApiService.Controllers
             var result = await _service.Add(dto);
 
             if (result.StatusCode == HttpStatusCode.OK)
+            {
                 return Ok(new IdResponseDto
                 {
                     Id = result.Id
                 });
+            }
 
             if (result.StatusCode == HttpStatusCode.Conflict)
                 return Conflict();
@@ -70,10 +72,12 @@ namespace WebApiService.Controllers
             var result = await _service.Update(dto);
 
             if (result.StatusCode == HttpStatusCode.OK)
+            {
                 return Ok(new IdResponseDto
                 {
                     Id = result.Id
                 });
+            }
 
             if (result.StatusCode == HttpStatusCode.NotFound)
                 return NotFound();
