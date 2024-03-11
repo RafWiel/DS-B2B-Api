@@ -16,6 +16,10 @@ namespace WebApiService.DataTransferObjects
         public string Name { get; set; }
 
         [Required]
+        [StringLength(32)]
+        public string PhoneNumber { get; set; }
+
+        [Required]
         public int Type { get; set; }
     }
 }

@@ -36,7 +36,8 @@ namespace WebApiService.Services
                         !string.IsNullOrEmpty(search) ?
                         (
                             u.User.Login.ToLower().Contains(search.ToLower()) ||
-                            u.User.Name.ToLower().Contains(search.ToLower())
+                            u.User.Name.ToLower().Contains(search.ToLower()) ||
+                            u.User.PhoneNumber.ToLower().Contains(search.ToLower())
                         ) : true
                     )
                     &&
@@ -55,36 +56,10 @@ namespace WebApiService.Services
                     Id = u.Id,
                     Login = u.User.Login,
                     Name = u.User.Name,
+                    PhoneNumber = u.User.PhoneNumber,
                     Type = u.Type,
                 })
-                .ToListAsync();
-
-            //return await _context.Employees
-            //    .Where(u =>
-            //        u.IsActive &&
-            //        (
-            //            !string.IsNullOrEmpty(search) ? 
-            //            (                        
-            //                u.Login.ToLower().Contains(search.ToLower()) ||
-            //                u.Name.ToLower().Contains(search.ToLower())                        
-            //            ) : true
-            //        ) 
-            //        &&
-            //        (
-            //            type != null && type != 0 ? u.Type == type : true
-            //        )
-            //    )
-            //    .OrderBy(sortColumn ?? nameof(EmployeeListDto.Id), isDescending)
-            //    .Skip(50 * ((page ?? 1) - 1))
-            //    .Take(50)
-            //    .Select(u => new EmployeeListDto
-            //    {
-            //        Id = u.Id,
-            //        Login = u.Login,
-            //        Name = u.Name,
-            //        Type = u.Type,
-            //    })                
-            //    .ToListAsync();            
+                .ToListAsync();                    
         }
         
         public async Task<EmployeeDto?> GetSingle(int id)
@@ -248,6 +223,9 @@ namespace WebApiService.Services
 
             if (sortColumn.Equals(nameof(EmployeeListDto.Name), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.User.Name, isDescending);
+
+            if (sortColumn.Equals(nameof(EmployeeListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.User.PhoneNumber, isDescending);
 
             return query.OrderBy(sortColumn, isDescending);
         }        

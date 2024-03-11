@@ -36,7 +36,8 @@ namespace WebApiService.Services
                         !string.IsNullOrEmpty(search) ?
                         (
                             u.User.Login.ToLower().Contains(search.ToLower()) ||
-                            u.User.Name.ToLower().Contains(search.ToLower())
+                            u.User.Name.ToLower().Contains(search.ToLower()) ||
+                            u.User.PhoneNumber.ToLower().Contains(search.ToLower())
                         ) : true
                     )
                     &&
@@ -55,6 +56,7 @@ namespace WebApiService.Services
                     Id = u.Id,
                     Login = u.User.Login,
                     Name = u.User.Name,
+                    PhoneNumber = u.User.PhoneNumber,
                     Type = u.Type,
                 })
                 .ToListAsync();                    
@@ -221,6 +223,9 @@ namespace WebApiService.Services
 
             if (sortColumn.Equals(nameof(CustomerListDto.Name), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.User.Name, isDescending);
+
+            if (sortColumn.Equals(nameof(CustomerListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.User.PhoneNumber, isDescending);
 
             return query.OrderBy(sortColumn, isDescending);
         }        
