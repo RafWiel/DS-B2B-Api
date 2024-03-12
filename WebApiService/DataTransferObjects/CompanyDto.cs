@@ -35,6 +35,6 @@ namespace WebApiService.DataTransferObjects
 
         public bool IsActive { get; set; }
 
-        public List<CustomerCompanyListDto> Customers { get; set; }
+        public List<CustomerListDto> Customers { get; set; }
     }
 }

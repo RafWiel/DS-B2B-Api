@@ -211,6 +211,18 @@ namespace WebApiService.Services
             return result > 0;            
         }
 
+        public async Task<Boolean> DeleteAllCompany(int companyId)
+        {
+            var result = await _context.Database.ExecuteSqlRawAsync(
+                $"update Users " +
+                $"set IsActive = 0 " +
+                $"from Users " +
+                $"inner join Customers on Users.Id = Customers.UserId " +
+                $"where Customers.CompanyModelId = {companyId}");
+
+            return result > 0;
+        }
+
         private IQueryable<CustomerModel> ApplySorting(IQueryable<CustomerModel> query, string? sortColumn, string? sortOrder)
         {
             //var sql = query.ToQueryString();    

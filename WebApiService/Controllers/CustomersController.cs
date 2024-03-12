@@ -103,6 +103,14 @@ namespace WebApiService.Controllers
 
             return result ? Ok() : BadRequest();
         }
+        
+        [HttpDelete("/api/companies/{id:int}/customers")]        
+        public async Task<ActionResult> DeleteAllCompany(int id)
+        {
+            var result = await _service.DeleteAllCompany(id);
+
+            return result ? Ok() : BadRequest();
+        }
     }
 }
 

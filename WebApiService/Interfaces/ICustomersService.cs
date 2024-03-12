@@ -12,5 +12,6 @@ namespace WebApiService.Interfaces
         Task<ResponseModel> Update(CustomerDto dto);
         Task<Boolean> Delete(int id);
         Task<Boolean> DeleteAll();
+        Task<Boolean> DeleteAllCompany(int companyId);
     }
 }

@@ -61,8 +61,9 @@ namespace WebApiService.Services
         public async Task<CompanyDto?> GetSingle(int id)
         {
             var model = await _context.Companies  
-                .Include(u => u.Customers)
-                .ThenInclude(u => u.User)
+                .Include(u => u.Customers
+                    .Where(u => u.User.IsActive))                
+                .ThenInclude(u => u.User)                
                 .SingleOrDefaultAsync(u => u.Id == id);
 
             return model == null ? null : new CompanyDto
@@ -75,11 +76,13 @@ namespace WebApiService.Services
                 Postal = model.Postal,
                 City = model.City,
                 Customers = model.Customers
-                    .Select(u => new CustomerCompanyListDto
+                    .Select(u => new CustomerListDto
                     {
                         Id = u.Id,
+                        Login = u.User.Login,
                         Name = u.User.Name,
                         PhoneNumber = u.User.PhoneNumber,
+                        Type = u.Type
                     })
                     .ToList()
             };
@@ -196,6 +199,14 @@ namespace WebApiService.Services
 
             var result = await _context.SaveChangesAsync();
 
+            //usun pracownikow
+            await _context.Database.ExecuteSqlRawAsync(
+                $"update Users " +
+                $"set IsActive = 0 " +
+                $"from Users " +
+                $"inner join Customers on Users.Id = Customers.UserId " +
+                $"where Customers.CompanyModelId = {model.Id}");
+
             return result > 0;
         }
 
@@ -203,8 +214,13 @@ namespace WebApiService.Services
         {
             var result = await _context.Database.ExecuteSqlRawAsync(@"
                 update Companies 
-                set IsActive = 0                 
-            ");
+                set IsActive = 0                                 
+
+                update Users 
+                set IsActive = 0 
+                from Users 
+                inner join Customers on Users.Id = Customers.UserId
+            ");        
 
             return result > 0;
         }
