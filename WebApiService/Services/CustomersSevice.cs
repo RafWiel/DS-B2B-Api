@@ -20,6 +20,12 @@ namespace WebApiService.Services
         private readonly DataContext _context;
         private readonly ILogger<ICustomersService> _logger;
 
+        private class ExtendedCustomerModel
+        {
+            public CustomerModel Customer { get; set; }
+            public string CompanyName { get; set; }
+        }
+
         public CustomersService(DataContext context, ILogger<ICustomersService> logger)
         {
             _context = context;
@@ -27,22 +33,31 @@ namespace WebApiService.Services
         }
 
         public async Task<List<CustomerListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page)
-        {                    
+        {            
             var query = _context.Customers
                 .Include(u => u.User)
+                .Join(_context.Companies, 
+                    customer => customer.CompanyModelId, 
+                    company => company.Id,
+                    (customer, company) => new ExtendedCustomerModel 
+                    { 
+                        Customer = customer, 
+                        CompanyName = company.Name
+                    })
                 .Where(u =>
-                    u.User.IsActive &&
+                    u.Customer.User.IsActive &&
                     (
                         !string.IsNullOrEmpty(search) ?
                         (
-                            u.User.Login.ToLower().Contains(search.ToLower()) ||
-                            u.User.Name.ToLower().Contains(search.ToLower()) ||
-                            u.User.PhoneNumber.ToLower().Contains(search.ToLower())
+                            u.Customer.User.Login.ToLower().Contains(search.ToLower()) ||
+                            u.Customer.User.Name.ToLower().Contains(search.ToLower()) ||
+                            u.Customer.User.PhoneNumber.ToLower().Contains(search.ToLower()) ||
+                            u.CompanyName.ToLower().Contains(search.ToLower())
                         ) : true
                     )
                     &&
                     (
-                        type != null && type != 0 ? u.Type == type : true
+                        type != null && type != 0 ? u.Customer.Type == type : true
                     )
                 );
 
@@ -53,11 +68,12 @@ namespace WebApiService.Services
                 .Take(50)
                 .Select(u => new CustomerListDto
                 {
-                    Id = u.Id,
-                    Login = u.User.Login,
-                    Name = u.User.Name,
-                    PhoneNumber = u.User.PhoneNumber,
-                    Type = u.Type,
+                    Id = u.Customer.Id,
+                    Login = u.Customer.User.Login,
+                    Name = u.Customer.User.Name,
+                    PhoneNumber = u.Customer.User.PhoneNumber,
+                    Type = u.Customer.Type,
+                    CompanyName = u.CompanyName
                 })
                 .ToListAsync();                    
         }
@@ -71,6 +87,7 @@ namespace WebApiService.Services
             return model == null ? null : new CustomerDto
             {
                 Id = model.Id,
+                CompanyId = model.CompanyModelId,
                 Type = model.Type,
                 Login = model.User.Login,
                 Name = model.User.Name,
@@ -105,13 +122,14 @@ namespace WebApiService.Services
             model = new CustomerModel
             {
                 User = new UserModel
-                {
+                {                    
                     Login = dto.Login,
                     Name = dto.Name,
                     PhoneNumber = dto.PhoneNumber,
                     Email = dto.Email,
                     IsActive = true
                 },
+                CompanyModelId = dto.CompanyId,
                 Type = dto.Type,
                 IsMailing = dto.IsMailing
             };
@@ -168,6 +186,7 @@ namespace WebApiService.Services
             model.User.Name = dto.Name;
             model.User.PhoneNumber = dto.PhoneNumber;
             model.User.Email = dto.Email;
+            model.CompanyModelId = dto.CompanyId;
             model.Type = dto.Type;
             model.IsMailing = dto.IsMailing;
                        
@@ -223,7 +242,7 @@ namespace WebApiService.Services
             return result > 0;
         }
 
-        private IQueryable<CustomerModel> ApplySorting(IQueryable<CustomerModel> query, string? sortColumn, string? sortOrder)
+        private IQueryable<ExtendedCustomerModel> ApplySorting(IQueryable<ExtendedCustomerModel> query, string? sortColumn, string? sortOrder)
         {
             //var sql = query.ToQueryString();    
 
@@ -231,15 +250,21 @@ namespace WebApiService.Services
             sortColumn = sortColumn ?? nameof(EmployeeListDto.Id);
 
             if (sortColumn.Equals(nameof(CustomerListDto.Login), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.User.Login, isDescending);
+                return query.OrderByWithDirection(u => u.Customer.User.Login, isDescending);
 
             if (sortColumn.Equals(nameof(CustomerListDto.Name), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.User.Name, isDescending);
+                return query.OrderByWithDirection(u => u.Customer.User.Name, isDescending);
 
             if (sortColumn.Equals(nameof(CustomerListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.User.PhoneNumber, isDescending);
+                return query.OrderByWithDirection(u => u.Customer.User.PhoneNumber, isDescending);
 
-            return query.OrderBy(sortColumn, isDescending);
+            if (sortColumn.Equals(nameof(CustomerListDto.CompanyName), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.CompanyName, isDescending);
+
+            if (sortColumn.Equals(nameof(CustomerListDto.Type), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.Customer.Type, isDescending);
+
+            return query.OrderByWithDirection(u => u.Customer.Id, isDescending);
         }        
     }
 }

@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using WebApiService.Interfaces;
 using WebApiService.DataTransferObjects;
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApiService.Controllers
 {
@@ -30,6 +31,17 @@ namespace WebApiService.Controllers
             int? page)
         {
             var items = await _service.Get(search, sortColumn, sortOrder, page);
+            if (items == null)
+                return NotFound();
+
+            return Ok(items);
+        }
+
+        [HttpGet]
+        [Route("list")]
+        public async Task<ActionResult<List<ListDto>>> GetList()
+        {
+            var items = await _service.GetList();
             if (items == null)
                 return NotFound();
 

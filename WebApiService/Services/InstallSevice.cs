@@ -54,7 +54,7 @@ namespace WebApiService.Services
                         Email = $"employee_{i}@email.com",
                         IsActive = true,
                     },
-                    Type = (int)random.Next(1, 3),                    
+                    Type = (int)random.Next(1, 4),                    
                     IsMailing = false
                 });
             }
@@ -83,7 +83,7 @@ namespace WebApiService.Services
                         Email = $"customer_{i}@email.com",
                         IsActive = true,
                     },
-                    Type = (int)random.Next(2, 3),
+                    Type = (int)random.Next(2, 4),
                     IsMailing = false
                 });
             }

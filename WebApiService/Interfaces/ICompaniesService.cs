@@ -7,6 +7,7 @@ namespace WebApiService.Interfaces
     public interface ICompaniesService
     {
         Task<List<CompanyListDto>> Get(string? search, string? sortColumn, string? sortOrder, int? page);
+        Task<List<ListDto>> GetList();
         Task<CompanyDto?> GetSingle(int id);
         Task<ResponseModel> Add(CompanyDto dto);
         Task<ResponseModel> Update(CompanyDto dto);

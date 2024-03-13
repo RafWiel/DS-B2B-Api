@@ -7,6 +7,8 @@ namespace WebApiService.DataTransferObjects
         [Required]
         public int Id { get; set; }
 
+        public int? CompanyId { get; set; }
+
         [Required]
         public int Type { get; set; }
 
@@ -27,6 +29,6 @@ namespace WebApiService.DataTransferObjects
         public string Email { get; set; }
 
         [Required]
-        public bool IsMailing { get; set; }
+        public bool IsMailing { get; set; }        
     }
 }

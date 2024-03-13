@@ -58,6 +58,25 @@ namespace WebApiService.Services
                 .ToListAsync();
         }
 
+        public async Task<List<ListDto>> GetList()
+        {
+            var items = await _context.Companies
+                .Where(u => u.IsActive)
+                .OrderBy(u => u.Name)
+                .ToListAsync();
+
+            //dodaj na poczatku pusta pozycje
+            if (items.Count > 0)
+                items.Insert(0, new CompanyModel());
+
+            return items.Select(u => new ListDto
+            {
+                Id = u.Id,
+                Name = u.Name
+            })
+            .ToList();
+        }
+
         public async Task<CompanyDto?> GetSingle(int id)
         {
             var model = await _context.Companies  
