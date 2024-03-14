@@ -247,7 +247,7 @@ namespace WebApiService.Services
             //var sql = query.ToQueryString();    
 
             var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
-            sortColumn = sortColumn ?? nameof(EmployeeListDto.Id);
+            sortColumn = sortColumn ?? nameof(CustomerListDto.Login);
 
             if (sortColumn.Equals(nameof(CustomerListDto.Login), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.Customer.User.Login, isDescending);

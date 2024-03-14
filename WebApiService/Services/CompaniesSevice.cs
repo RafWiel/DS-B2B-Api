@@ -29,7 +29,7 @@ namespace WebApiService.Services
         public async Task<List<CompanyListDto>> Get(string? search, string? sortColumn, string? sortOrder, int? page)
         {
             var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
-            sortColumn = sortColumn ?? nameof(EmployeeListDto.Id);
+            sortColumn = sortColumn ?? nameof(EmployeeListDto.Name);
 
             return await _context.Companies
                 .Where(u =>
