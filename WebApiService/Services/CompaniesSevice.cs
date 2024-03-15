@@ -54,7 +54,7 @@ namespace WebApiService.Services
                     Name = u.Name,
                     TaxNumber = u.TaxNumber,
                     City = u.City
-                })
+                })                
                 .ToListAsync();
         }
 
@@ -103,6 +103,7 @@ namespace WebApiService.Services
                         PhoneNumber = u.User.PhoneNumber,
                         Type = u.Type
                     })
+                    .OrderBy(u => u.Login)
                     .ToList()
             };
         }
