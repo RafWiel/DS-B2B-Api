@@ -5,10 +5,7 @@ namespace WebApiService.DataTransferObjects
     public class EmployeeDto
     {        
         [Required]
-        public int Id { get; set; }
-
-        [Required]
-        public int Type { get; set; }
+        public int Id { get; set; }        
 
         [Required]
         [StringLength(64)]
@@ -28,5 +25,8 @@ namespace WebApiService.DataTransferObjects
 
         [Required]
         public bool IsMailing { get; set; }
+
+        [Required]
+        public byte Type { get; set; }
     }
 }

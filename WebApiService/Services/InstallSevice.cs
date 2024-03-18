@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using WebApiService.Interfaces;
 using WebApiService.Enums;
 using WebApiService.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace WebApiService.Services
 {
@@ -24,72 +25,23 @@ namespace WebApiService.Services
         {
             InstallEmployees();
             InstallCompanies();
-                      
+
             await _context.SaveChangesAsync();
 
             InstallCustomers();
 
             await _context.SaveChangesAsync();
 
+            InstallServiceRequests();
+
+            await _context.SaveChangesAsync();
+
             return true;
-        }        
-
-        #region Employees
-
-        private void InstallEmployees()
-        {
-            if (_context.Employees.Count() > 0)
-                return;            
-
-            var random = new Random();
-            for (int i = 1; i <= 100; i++)
-            {
-                _context.Employees.Add(new EmployeeModel
-                {
-                    User = new UserModel
-                    {
-                        Login = $"employee_{i}",
-                        Name = $"Name {i}",
-                        PhoneNumber = $"123456{i:000}",
-                        Email = $"employee_{i}@email.com",
-                        IsActive = true,
-                    },
-                    Type = (int)random.Next(1, 4),                    
-                    IsMailing = false
-                });
-            }
         }
 
-        #endregion
 
-        #region Customers
 
-        private void InstallCustomers()
-        {
-            if (_context.Customers.Count() > 0)
-                return;
 
-            var random = new Random();
-            for (int i = 1; i <= 100; i++)
-            {
-                _context.Customers.Add(new CustomerModel
-                {
-                    CompanyModelId = ((i - 1) / 10) + 1,
-                    User = new UserModel
-                    {
-                        Login = $"customer_{i}",
-                        Name = $"Name {i}",
-                        PhoneNumber = $"654321{i:000}",
-                        Email = $"customer_{i}@email.com",
-                        IsActive = true,
-                    },
-                    Type = (int)random.Next(2, 4),
-                    IsMailing = false
-                });
-            }
-        }
-
-        #endregion
 
         #region Companies
 
@@ -115,5 +67,103 @@ namespace WebApiService.Services
         }
 
         #endregion  
+
+        #region Customers
+
+        private void InstallCustomers()
+        {
+            if (_context.Customers.Count() > 0)
+                return;
+
+            var random = new Random();
+            for (int i = 1; i <= 100; i++)
+            {
+                _context.Customers.Add(new CustomerModel
+                {
+                    CompanyModelId = ((i - 1) / 10) + 1,
+                    User = new UserModel
+                    {
+                        Login = $"customer_{i}",
+                        Name = $"Name {i}",
+                        PhoneNumber = $"654321{i:000}",
+                        Email = $"customer_{i}@email.com",
+                        IsActive = true,
+                    },
+                    Type = (byte)random.Next(2, 4),
+                    IsMailing = false
+                });
+            }
+        }
+
+        #endregion
+
+        #region Employees
+
+        private void InstallEmployees()
+        {
+            if (_context.Employees.Count() > 0)
+                return;
+
+            var random = new Random();
+            for (int i = 1; i <= 100; i++)
+            {
+                _context.Employees.Add(new EmployeeModel
+                {
+                    User = new UserModel
+                    {
+                        Login = $"employee_{i}",
+                        Name = $"Name {i}",
+                        PhoneNumber = $"123456{i:000}",
+                        Email = $"employee_{i}@email.com",
+                        IsActive = true,
+                    },
+                    Type = (byte)random.Next(1, 4),
+                    IsMailing = false
+                });
+            }
+        }
+
+        #endregion
+
+        #region Service Requests
+
+        private void InstallServiceRequests()
+        {
+            if (_context.ServiceRequests.Count() > 0)
+                return;
+
+            var random = new Random();
+            int index = 1;
+            int ordinal = 1;
+            int month = DateTime.Now.AddDays(index).Month;
+
+            for (int i = 1; i <= 100; i++)
+            {                
+                var date = DateTime.Now.AddDays(index);
+                if (date.Month != month)
+                { 
+                    month = date.Month;
+                    ordinal = 1;
+                }
+
+                _context.ServiceRequests.Add(new ServiceRequestModel
+                {
+                    CreationDate = date,
+                    Ordinal = ordinal++,
+                    CustomerId = index,
+                    EmployeeId = index,
+                    Topic = $"Tytuł zamówienia {i}",
+                    Description = $"Odrobinkę dłuższa treść zamówienia {i}",
+                    Status = (byte)random.Next(1, 3),
+                    Type = (byte)random.Next(1, 3),
+                    SubmitType = (byte)random.Next(1, 3),                    
+                });
+
+                if (i % 5 == 0)
+                    index++;
+            }
+        }
+
+        #endregion
     }
 }

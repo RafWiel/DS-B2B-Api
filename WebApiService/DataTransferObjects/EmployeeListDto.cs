@@ -6,7 +6,7 @@ namespace WebApiService.DataTransferObjects
     {
         [Required]
         public int Id { get; set; }        
-        
+
         [Required]
         [StringLength(64)]
         public string Login { get; set; }
@@ -20,6 +20,6 @@ namespace WebApiService.DataTransferObjects
         public string PhoneNumber { get; set; }
 
         [Required]
-        public int Type { get; set; }
+        public byte Type { get; set; }
     }
 }

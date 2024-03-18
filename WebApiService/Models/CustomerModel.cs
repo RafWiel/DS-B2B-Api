@@ -9,16 +9,16 @@ namespace WebApiService.Models
     {
         [Key]
         public int Id { get; set; }
-        
-        public int? UserId { get; set; }
 
         public int? CompanyModelId { get; set; }
+
+        public int? UserId { get; set; }        
 
         [Required]
         public UserModel User { get; set; }
         
         [Required]
-        public int Type { get; set; }
+        public byte Type { get; set; }
 
         [Required]
         public bool IsMailing { get; set; }       

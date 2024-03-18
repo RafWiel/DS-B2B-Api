@@ -16,7 +16,7 @@ namespace WebApiService.Models
         public UserModel User { get; set; }
 
         [Required]
-        public int Type { get; set; }
+        public byte Type { get; set; }
 
         [Required]
         public bool IsMailing { get; set; }

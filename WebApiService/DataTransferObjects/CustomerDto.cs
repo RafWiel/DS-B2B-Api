@@ -7,10 +7,7 @@ namespace WebApiService.DataTransferObjects
         [Required]
         public int Id { get; set; }
 
-        public int? CompanyId { get; set; }
-
-        [Required]
-        public int Type { get; set; }
+        public int? CompanyId { get; set; }        
 
         [Required]
         [StringLength(64)]
@@ -27,6 +24,9 @@ namespace WebApiService.DataTransferObjects
         [Required]
         [StringLength(64)]
         public string Email { get; set; }
+
+        [Required]
+        public byte Type { get; set; }
 
         [Required]
         public bool IsMailing { get; set; }        
