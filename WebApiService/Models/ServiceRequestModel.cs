@@ -18,7 +18,10 @@ namespace WebApiService.Models
         public DateTime? ReminderDate { get; set; }
 
         [Required]
-        public int Ordinal { get; set; } 
+        public int Ordinal { get; set; }
+
+        [NotMapped]
+        public string? Name => $"ZLS/{Ordinal}/{CreationDate.ToString("MM")}/{CreationDate.ToString("yy")}";
 
         public int? CustomerId { get; set; }
         

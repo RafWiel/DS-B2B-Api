@@ -53,6 +53,8 @@ try
     builder.Services.AddScoped<IEmployeesService, EmployeesService>();
     builder.Services.AddScoped<ICompaniesService, CompaniesService>();
     builder.Services.AddScoped<ICustomersService, CustomersService>();
+    builder.Services.AddScoped<IServiceRequestsService, ServiceRequestsService>();
+
     builder.Services.AddTransient<GlobalExceptionsMiddleware>();
 
     builder.Logging.ClearProviders();
