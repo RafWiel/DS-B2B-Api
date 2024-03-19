@@ -9,8 +9,8 @@ namespace WebApiService.Interfaces
         Task<List<CompanyListDto>> Get(string? search, string? sortColumn, string? sortOrder, int? page);
         Task<List<ListDto>> GetList();
         Task<CompanyDto?> GetSingle(int id);
-        Task<ResponseModel> Add(CompanyDto dto);
-        Task<ResponseModel> Update(CompanyDto dto);
+        Task<IdResponseModel> Add(CompanyDto dto);
+        Task<IdResponseModel> Update(CompanyDto dto);
         Task<Boolean> Delete(int id);
         Task<Boolean> DeleteAll();
     }

@@ -8,8 +8,8 @@ namespace WebApiService.Interfaces
     {
         Task<List<EmployeeListDto>> Get(string? search, int? type, string? sortColumn, string? sortOrder, int? page);
         Task<EmployeeDto?> GetSingle(int id);
-        Task<ResponseModel> Add(EmployeeDto dto);
-        Task<ResponseModel> Update(EmployeeDto dto);
+        Task<IdResponseModel> Add(EmployeeDto dto);
+        Task<IdResponseModel> Update(EmployeeDto dto);
         Task<Boolean> Delete(int id);
         Task<Boolean> DeleteAll();
     }

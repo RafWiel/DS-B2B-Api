@@ -2,7 +2,7 @@
 
 namespace WebApiService.Models
 {
-    public class ResponseModel
+    public class IdResponseModel
     {
         public int Id { get; set; }
         public HttpStatusCode StatusCode { get; set; }

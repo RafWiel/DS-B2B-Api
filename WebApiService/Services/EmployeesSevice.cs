@@ -80,7 +80,7 @@ namespace WebApiService.Services
             };
         }
 
-        public async Task<ResponseModel> Add(EmployeeDto dto)
+        public async Task<IdResponseModel> Add(EmployeeDto dto)
         {
             var model = await _context.Employees
                .FirstOrDefaultAsync(u =>
@@ -96,7 +96,7 @@ namespace WebApiService.Services
             {
                 _logger.LogWarning($"Employee {dto.Login} already exists");
 
-                return new ResponseModel 
+                return new IdResponseModel
                 { 
                     StatusCode = HttpStatusCode.Conflict
                 };
@@ -120,14 +120,14 @@ namespace WebApiService.Services
 
             var result = await _context.SaveChangesAsync();
 
-            return new ResponseModel
+            return new IdResponseModel
             {
                 Id = result <= 0 ? 0 : model.Id,
                 StatusCode = result <= 0 ? HttpStatusCode.BadRequest : HttpStatusCode.OK
             };
         }
 
-        public async Task<ResponseModel> Update(EmployeeDto dto)
+        public async Task<IdResponseModel> Update(EmployeeDto dto)
         {
             var model = await _context.Employees
                 .FirstOrDefaultAsync(u =>
@@ -144,7 +144,7 @@ namespace WebApiService.Services
             {
                 _logger.LogWarning($"Employee {dto.Login} login, email, phone number conflict");
 
-                return new ResponseModel
+                return new IdResponseModel
                 {
                     StatusCode = HttpStatusCode.Conflict
                 };
@@ -158,7 +158,7 @@ namespace WebApiService.Services
             {
                 _logger.LogWarning($"Employee id: {dto.Id} not found");
 
-                return new ResponseModel
+                return new IdResponseModel
                 {
                     StatusCode = HttpStatusCode.NotFound
                 };
@@ -173,7 +173,7 @@ namespace WebApiService.Services
                        
             var result = await _context.SaveChangesAsync();
             
-            return new ResponseModel
+            return new IdResponseModel
             {
                 Id = model.Id,
                 StatusCode = HttpStatusCode.OK
