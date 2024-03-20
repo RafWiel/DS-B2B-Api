@@ -33,7 +33,7 @@ namespace WebApiService.Services
                 .Where(u =>
                     !string.IsNullOrEmpty(search) ?
                     (
-                        //u.CreationDate.ToLower().Contains(search.ToLower()) ||
+                        //DataContext.DateToString(u.CreationDate).Contains(search.ToLower()) ||
                         //u.Name.ToLower().Contains(search.ToLower()) ||
                         u.Topic.ToLower().Contains(search.ToLower()) ||
                         u.Description.ToLower().Contains(search.ToLower())
@@ -53,8 +53,9 @@ namespace WebApiService.Services
                 {
                     Id = u.Id,
                     Date = u.CreationDate,
-                    //Name = u.Name!,
-                    Name = DataContext.DateToString(u.CreationDate),
+                    //Name = u.Name!,  
+                    //Name = DataContext.DateToString(u.CreationDate),
+                    Name = DataContext.GetServiceRequestName(u.CreationDate, u.Ordinal),
                     Topic = u.Topic,
                     Description = u.Description,
                     Customer = u.Customer != null ? u.Customer.User.Name : string.Empty,

@@ -20,8 +20,8 @@ namespace WebApiService.Models
         [Required]
         public int Ordinal { get; set; }
 
-        [NotMapped]
-        public string? Name => $"ZLS/{Ordinal}/{CreationDate.ToString("MM")}/{CreationDate.ToString("yy")}";
+        //[NotMapped]
+        //public string? Name => $"ZLS/{Ordinal}/{CreationDate.ToString("MM")}/{CreationDate.ToString("yy")}";
 
         public int? CustomerId { get; set; }
         

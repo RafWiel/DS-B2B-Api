@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System;
 using System.Drawing;
 using System.Reflection.Metadata;
 using WebApiService.Models;
@@ -20,45 +21,68 @@ namespace WebApiService.Data
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            //modelBuilder.Entity<ServiceRequestModel>()
-            //    .Property(p => p.CreationDate)
-            //    .HasConversion(date => date.ToString("dd/MM/yyyy"),
-            //                   str => DateTime.Parse(str));
-
+        {            
             modelBuilder.HasDbFunction(() => DateToString(default))
                 .HasTranslation(args => new SqlFunctionExpression(
-                    functionName: "CONVERT",
-                    arguments: args.Prepend(new SqlFragmentExpression("varchar(100)")),
+                    functionName: "convert",
+                    arguments: new[]
+                    { 
+                        new SqlFragmentExpression("varchar"),
+                        args.First(),
+                        new SqlFragmentExpression("103"),
+                    },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { false, true, false },
+                    argumentsPropagateNullability: new[] { false },
+                    type: typeof(string),
+                    typeMapping: null));
+
+            modelBuilder.HasDbFunction(() => GetServiceRequestName(default, default))
+                .HasTranslation(args => new SqlFunctionExpression(
+                    functionName: "cast",
+                    arguments: new[]
+                    { 
+                        new SqlFragmentExpression($"datepart(year, convert(varchar, {args.First()}, 103)) as varchar(32)"),
+                        //args.First(),
+                        //new SqlFragmentExpression("as varchar(32)"),
+                    },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { false },
                     type: typeof(string),
                     typeMapping: null));
 
 
-            //// Configure model
-            //modelBuilder.HasDbFunction(typeof(DataContext).GetMethod(nameof(DataContext.DateToString)))
-            //    .HasTranslation(e =>
+
+
+            select
+
+    'ZLS/' +
+    convert(varchar(6), ordinal) +
+            '/' +
+    right('00' + convert(varchar(4), datepart(month, CreationDate)), 2) +
+    '/' +
+    convert(varchar(4), datepart(yyyy, CreationDate))
+from ServiceRequests
+
+
+
+            //modelBuilder.HasDbFunction(() => GetServiceRequestName(default, default))
+            //    .HasTranslation(arguments =>
             //    {
-            //        return new SqlFunctionExpression("CONVERT",
-            //            typeof(string),
-            //            new[]{
-            //                new SqlFragmentExpression("VARCHAR(100)"),
-            //                e.First(),
-            //                new SqlFragmentExpression("101"), // Pick a style available on T-SQL. 
-            //            });
+            //        return new SqlFragmentExpression("COUNT(*) OVER()");
             //    });
+
+
         }
 
-        //public static ValueConverter<DateTime, string> DateToString = new ValueConverter<DateTime, string>(
-        //    dateTime => string.FromDateTimeUtc(DateTime.SpecifyKind(dateTime, DateTimeKind.Utc)),
-        //    instant => instant.ToDateTimeUtc()
-        //);
+        public static string DateToString(DateTime date) => throw new NotSupportedException();
+        public static string GetServiceRequestName(DateTime date, int ordinal) => throw new NotSupportedException();
+
+        //public static string GetServiceRequestName1(int ordinal, DateTime date)
+        //{
+        //    return $"ZLS/{ordinal}/{date.ToString("MM")}/{date.ToString("yy")}";
+        //}
+
+
         
-        to nie dziala
-        public static string DateToString(DateTime date)
-        {
-            return date.ToString("dd/MM/yyyy"); 
-        }
     }
 }
