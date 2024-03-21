@@ -26,11 +26,13 @@ namespace WebApiService.Controllers
         public async Task<ActionResult<List<ServiceRequestListDto>>> Get(
             string? search, 
             int? type,
+            int? submitType, 
+            int? status,
             [FromQuery(Name = "sort-column")] string? sortColumn,
             [FromQuery(Name = "sort-order")] string? sortOrder, 
             int? page)
         {
-            var items = await _service.Get(search, type, sortColumn, sortOrder, page);
+            var items = await _service.Get(search, type, submitType, status, sortColumn, sortOrder, page);
             if (items == null)
                 return NotFound();
 

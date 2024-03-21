@@ -16,17 +16,17 @@ namespace WebApiService.Data
         public DbSet<CompanyModel> Companies { get; set; }
         public DbSet<ServiceRequestModel> ServiceRequests { get; set; }
 
-        #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {            
+        {
             modelBuilder.HasDbFunction(() => DateToString(default))
                 .HasTranslation(args => new SqlFunctionExpression(
                     functionName: "convert",
                     arguments: new[]
-                    { 
+                    {
                         new SqlFragmentExpression("varchar"),
                         args.First(),
                         new SqlFragmentExpression("103"),
@@ -37,45 +37,56 @@ namespace WebApiService.Data
                     typeMapping: null));
 
             modelBuilder.HasDbFunction(() => GetServiceRequestName(default, default))
-                .HasTranslation(args => new SqlFunctionExpression(
-                    functionName: "cast",
-                    arguments: new[]
-                    { 
-                        new SqlFragmentExpression($"datepart(year, convert(varchar, {args.First()}, 103)) as varchar(32)"),
-                        //args.First(),
-                        //new SqlFragmentExpression("as varchar(32)"),
-                    },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { false },
-                    type: typeof(string),
-                    typeMapping: null));
+                .HasTranslation(args =>
+                {
+                    var ordinalColumn = (ColumnExpression)args[0];
+                    var dateColumn = (ColumnExpression)args[1];
 
+                    return new SqlFunctionExpression(
+                        functionName: "concat",
+                        arguments: new[]
+                        {
+                            new SqlFragmentExpression("'ZLS/'"),
+                            new SqlFragmentExpression($"{ordinalColumn.Name}"),
+                            new SqlFragmentExpression("'/'"),
+                            new SqlFragmentExpression($"right('00' + convert(varchar(4), datepart(month, {dateColumn.Name})), 2)"),
+                            new SqlFragmentExpression("'/'"),
+                            new SqlFragmentExpression($"datepart(year, {dateColumn.Name})"),
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        type: typeof(string),
+                        typeMapping: null);
+                });
 
-
-
-            select
-
-    'ZLS/' +
-    convert(varchar(6), ordinal) +
-            '/' +
-    right('00' + convert(varchar(4), datepart(month, CreationDate)), 2) +
-    '/' +
-    convert(varchar(4), datepart(yyyy, CreationDate))
-from ServiceRequests
-
-
+            modelBuilder.HasDbFunction(() => GetServiceRequestType(default))
+                .HasTranslation(args =>
+                {
+                    var typeColumn = args[0];
+                    
+                    return new SqlFunctionExpression(
+                        functionName: "concat",
+                        arguments: new[]
+                        {
+                            new SqlFragmentExpression($"CASE WHEN {typeColumn.Name}=1 THEN 'First' WHEN {typeColumn.Name}=2 THEN 'Second' WHEN {typeColumn.Name}=3 THEN 'Third' ELSE '' END"),
+                            new SqlFragmentExpression("' do wywalenia, bez concat'"),
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        type: typeof(string),
+                        typeMapping: null);
+                });            
 
             //modelBuilder.HasDbFunction(() => GetServiceRequestName(default, default))
             //    .HasTranslation(arguments =>
             //    {
             //        return new SqlFragmentExpression("COUNT(*) OVER()");
             //    });
-
-
         }
 
         public static string DateToString(DateTime date) => throw new NotSupportedException();
-        public static string GetServiceRequestName(DateTime date, int ordinal) => throw new NotSupportedException();
+        public static string GetServiceRequestName(int ordinal, DateTime date) => throw new NotSupportedException();
+        public static string GetServiceRequestType(int type) => throw new NotSupportedException();
 
         //public static string GetServiceRequestName1(int ordinal, DateTime date)
         //{
@@ -83,6 +94,6 @@ from ServiceRequests
         //}
 
 
-        
+
     }
 }

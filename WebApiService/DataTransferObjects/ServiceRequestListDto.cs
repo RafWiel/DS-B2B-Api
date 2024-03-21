@@ -10,8 +10,8 @@ namespace WebApiService.DataTransferObjects
         public int Id { get; set; }
 
         [Required]
-        public DateTime Date { get; set; }
-        
+        public DateTime Date { get; set; }        
+
         [Required]
         public string Name { get; set; }
 
@@ -30,12 +30,16 @@ namespace WebApiService.DataTransferObjects
         public string? Employee { get; set; }
 
         [Required]
-        public byte Type { get; set; }
+        public string Type { get; set; }
 
         [Required]
         public byte SubmitType { get; set; }
 
         [Required]
-        public byte Status { get; set; }       
+        public byte Status { get; set; }
+        
+        public int Ordinal { get; set; }
+
+        public int TypeNum { get; set; }
     }
 }
