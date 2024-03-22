@@ -77,7 +77,32 @@ namespace WebApiService.Services
                 })
                 .ToListAsync();                    
         }
-        
+
+        private IQueryable<ExtendedCustomerModel> ApplySorting(IQueryable<ExtendedCustomerModel> query, string? sortColumn, string? sortOrder)
+        {
+            //var sql = query.ToQueryString();    
+
+            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
+            sortColumn = sortColumn ?? nameof(CustomerListDto.Login);
+
+            if (sortColumn.Equals(nameof(CustomerListDto.Login), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.Customer.User.Login, isDescending);
+
+            if (sortColumn.Equals(nameof(CustomerListDto.Name), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.Customer.User.Name, isDescending);
+
+            if (sortColumn.Equals(nameof(CustomerListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.Customer.User.PhoneNumber, isDescending);
+
+            if (sortColumn.Equals(nameof(CustomerListDto.CompanyName), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.CompanyName, isDescending);
+
+            if (sortColumn.Equals(nameof(CustomerListDto.Type), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.Customer.Type, isDescending);
+
+            return query.OrderByWithDirection(u => u.Customer.Id, isDescending);
+        }
+
         public async Task<CustomerDto?> GetSingle(int id)
         {
             var model = await _context.Customers
@@ -240,31 +265,6 @@ namespace WebApiService.Services
                 $"where Customers.CompanyModelId = {companyId}");
 
             return result > 0;
-        }
-
-        private IQueryable<ExtendedCustomerModel> ApplySorting(IQueryable<ExtendedCustomerModel> query, string? sortColumn, string? sortOrder)
-        {
-            //var sql = query.ToQueryString();    
-
-            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
-            sortColumn = sortColumn ?? nameof(CustomerListDto.Login);
-
-            if (sortColumn.Equals(nameof(CustomerListDto.Login), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.Customer.User.Login, isDescending);
-
-            if (sortColumn.Equals(nameof(CustomerListDto.Name), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.Customer.User.Name, isDescending);
-
-            if (sortColumn.Equals(nameof(CustomerListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.Customer.User.PhoneNumber, isDescending);
-
-            if (sortColumn.Equals(nameof(CustomerListDto.CompanyName), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.CompanyName, isDescending);
-
-            if (sortColumn.Equals(nameof(CustomerListDto.Type), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.Customer.Type, isDescending);
-
-            return query.OrderByWithDirection(u => u.Customer.Id, isDescending);
-        }        
+        }             
     }
 }

@@ -154,9 +154,9 @@ namespace WebApiService.Services
                     EmployeeId = index,
                     Topic = $"Tytuł zamówienia {i}",
                     Description = $"Odrobinkę dłuższa treść zamówienia {i}",
-                    Status = (byte)random.Next(1, 3),
-                    Type = (byte)random.Next(1, 3),
-                    SubmitType = (byte)random.Next(1, 3),                    
+                    Status = (byte)random.Next(1, 9),
+                    RequestType = (byte)random.Next(1, 4),
+                    SubmitType = (byte)random.Next(1, 5),                    
                 });
 
                 if (i % 5 == 0)

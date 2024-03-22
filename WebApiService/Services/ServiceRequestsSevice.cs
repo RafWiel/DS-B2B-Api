@@ -12,6 +12,7 @@ using WebApiService.Extensions;
 using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Identity;
+using WebApiService.Data;
 
 namespace WebApiService.Services
 {
@@ -36,32 +37,52 @@ namespace WebApiService.Services
             int? page)
         {
             var query = _context.ServiceRequests
-                //.Where(u =>
-                //    (
-                //        !string.IsNullOrEmpty(search) ?
-                //        (
-                //            DataContext.DateToString(u.CreationDate).Contains(search.ToLower()) ||
-                //            DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate).ToLower().Contains(search.ToLower()) ||
-                //            u.Topic.ToLower().Contains(search.ToLower()) ||
-                //            u.Description.ToLower().Contains(search.ToLower()) ||
-                //            (u.Customer != null && u.Customer.User.Name.ToLower().Contains(search.ToLower())) ||
-                //            (u.Employee != null && u.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
-                //            (u.PartnerCompany != null && u.PartnerCompany.Name.ToLower().Contains(search.ToLower()))
-                //        ) : true
-                //    )
-                //    && (
-                //        type != null && type != 0 ? u.Type == type : true
-                //    )
-                //    && (
-                //        submitType != null && submitType != 0 ? u.SubmitType == submitType : true
-                //    )
-                //    && (
-                //        status != null && status != 0 ? u.Status == status : true
-                //    )
-                //).Skip(50 * ((page ?? 1) - 1))
-                //.Take(50)
+                .Where(u =>
+                    (
+                        !string.IsNullOrEmpty(search) ?
+                        (
+                            DataContext.DateToString(u.CreationDate).Contains(search.ToLower()) ||
+                            DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate).ToLower().Contains(search.ToLower()) ||
+                            u.Topic.ToLower().Contains(search.ToLower()) ||
+                            u.Description.ToLower().Contains(search.ToLower()) ||
+                            (u.Customer != null && u.Customer.User.Name.ToLower().Contains(search.ToLower())) ||
+                            (u.Employee != null && u.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
+                            (u.PartnerCompany != null && u.PartnerCompany.Name.ToLower().Contains(search.ToLower()))
+                        ) : true
+                    )
+                    && (
+                        type != null && type != 0 ? u.RequestType == type : true
+                    )
+                    && (
+                        submitType != null && submitType != 0 ? u.SubmitType == submitType : true
+                    )
+                    && (
+                        status != null && status != 0 ? u.Status == status : true
+                    )
+                );
+
+            var sql = query.ToQueryString(); 
+
+            query = ApplySorting(query, sortColumn, sortOrder); 
+
+            return await query
+                .Skip(50 * ((page ?? 1) - 1))
+                .Take(50)
+                .Select(u => new ServiceRequestModel //najpierw zwroc model, bo inaczej beda nulle w polach wyliczeniowych (np GetServiceRequestName)
+                {
+                    CreationDate = u.CreationDate,
+                    Topic = u.Topic,
+                    Description = u.Description,
+                    Customer = u.Customer,
+                    PartnerCompany = u.PartnerCompany,
+                    Employee = u.Employee,
+                    Ordinal = u.Ordinal,
+                    RequestType = u.RequestType,
+                    SubmitType = u.SubmitType,
+                    Status = u.Status,
+                })
                 .Select(u => new ServiceRequestListDto
-                {                    
+                {
                     Id = u.Id,
                     Date = u.CreationDate,
                     Name = DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate),
@@ -70,37 +91,49 @@ namespace WebApiService.Services
                     Customer = u.Customer != null ? u.Customer.User.Name : string.Empty,
                     Company = u.PartnerCompany != null ? u.PartnerCompany.Name : string.Empty,
                     Employee = u.Employee != null ? u.Employee.User.Name : string.Empty,
-                    Type = DataContext.GetServiceRequestType(u.Type),
-                    SubmitType = u.SubmitType,
-                    Status = u.Status,
-                    Ordinal = u.Ordinal
-                });
-
-            var sql = query.ToQueryString(); 
-
-            //query = ApplySorting(query, sortColumn, sortOrder); 
-
-            return await query
-                //.Skip(50 * ((page ?? 1) - 1))
-                //.Take(50)
-                //.Select(u => new ServiceRequestListDto
-                //{
-                //    Id = u.Id,
-                //    Date = u.CreationDate,
-                //    Name = DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate),
-                //    Topic = u.Topic,
-                //    Description = u.Description,
-                //    Customer = u.Customer != null ? u.Customer.User.Name : string.Empty,
-                //    Company = u.PartnerCompany != null ? u.PartnerCompany.Name : string.Empty,
-                //    Employee = u.Employee != null ? u.Employee.User.Name : string.Empty,
-                //    Type = DataContext.GetServiceRequestType(u.Type),
-                //    SubmitType = u.SubmitType,
-                //    Status = u.Status
-                //    Ordinal = u.Ordinal, //moze by to jakos wyjebac?
-                //})
+                    Type = DataContext.GetServiceRequestType(u.RequestType),
+                    SubmitType = DataContext.GetServiceRequestSubmitType(u.SubmitType),
+                    Status = DataContext.GetServiceRequestStatus(u.Status),
+                })
                 .ToListAsync();                    
         }
-        
+
+        private IQueryable<ServiceRequestModel> ApplySorting(IQueryable<ServiceRequestModel> query, string? sortColumn, string? sortOrder)
+        {
+            //var sql = query.ToQueryString();    
+
+            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
+            sortColumn = sortColumn ?? nameof(ServiceRequestListDto.Date);
+
+            dodaj metody do sortowania ktore zwroca inty zamiast stringow
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.Date), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.CreationDate, isDescending);
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.Name), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate), isDescending);
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.Customer), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.Customer!.User.Name, isDescending);
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.Company), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.PartnerCompany!.Name, isDescending);
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.Employee), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.Employee!.User.Name, isDescending);
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.Type), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestType(u.RequestType), isDescending);
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.SubmitType), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestSubmitType(u.SubmitType), isDescending);
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.Status), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestStatus(u.Status), isDescending);
+
+            return query.OrderBy(sortColumn, isDescending);
+        }
+
         //public async Task<EmployeeDto?> GetSingle(int id)
         //{
         //    var model = await _context.Employees
@@ -209,9 +242,9 @@ namespace WebApiService.Services
         //    model.User.Email = dto.Email;
         //    model.Type = dto.Type;
         //    model.IsMailing = dto.IsMailing;
-                       
+
         //    var result = await _context.SaveChangesAsync();
-            
+
         //    return new ResponseModel
         //    {
         //        Id = model.Id,
@@ -234,7 +267,7 @@ namespace WebApiService.Services
         //    model.User.IsActive = false;
 
         //    var result = await _context.SaveChangesAsync();
-            
+
         //    return result > 0;
         //}
 
@@ -248,34 +281,6 @@ namespace WebApiService.Services
         //    ");
 
         //    return result > 0;            
-        //}
-
-        private IQueryable<ServiceRequestModel> ApplySorting(IQueryable<ServiceRequestModel> query, string? sortColumn, string? sortOrder)
-        {
-            //var sql = query.ToQueryString();    
-
-            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
-            sortColumn = sortColumn ?? nameof(ServiceRequestListDto.Date);
-
-            if (sortColumn.Equals(nameof(ServiceRequestListDto.Date), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.CreationDate, isDescending);
-
-            if (sortColumn.Equals(nameof(ServiceRequestListDto.Name), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate), isDescending);
-
-            if (sortColumn.Equals(nameof(ServiceRequestListDto.Customer), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.Customer!.User.Name, isDescending);
-
-            if (sortColumn.Equals(nameof(ServiceRequestListDto.Company), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.PartnerCompany!.Name, isDescending);
-
-            if (sortColumn.Equals(nameof(ServiceRequestListDto.Employee), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.Employee!.User.Name, isDescending);
-
-            //if (sortColumn.Equals(nameof(ServiceRequestListDto.Description), StringComparison.OrdinalIgnoreCase))
-            //    return query.OrderByWithDirection(u => u.Description, isDescending);
-
-            return query.OrderBy(sortColumn, isDescending);
-        }        
+        //}              
     }
 }

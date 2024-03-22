@@ -61,7 +61,26 @@ namespace WebApiService.Services
                 })
                 .ToListAsync();                    
         }
-        
+
+        private IQueryable<EmployeeModel> ApplySorting(IQueryable<EmployeeModel> query, string? sortColumn, string? sortOrder)
+        {
+            //var sql = query.ToQueryString();    
+
+            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
+            sortColumn = sortColumn ?? nameof(EmployeeListDto.Login);
+
+            if (sortColumn.Equals(nameof(EmployeeListDto.Login), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.User.Login, isDescending);
+
+            if (sortColumn.Equals(nameof(EmployeeListDto.Name), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.User.Name, isDescending);
+
+            if (sortColumn.Equals(nameof(EmployeeListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.User.PhoneNumber, isDescending);
+
+            return query.OrderBy(sortColumn, isDescending);
+        }
+
         public async Task<EmployeeDto?> GetSingle(int id)
         {
             var model = await _context.Employees
@@ -209,25 +228,6 @@ namespace WebApiService.Services
             ");
 
             return result > 0;            
-        }
-
-        private IQueryable<EmployeeModel> ApplySorting(IQueryable<EmployeeModel> query, string? sortColumn, string? sortOrder)
-        {
-            //var sql = query.ToQueryString();    
-
-            var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
-            sortColumn = sortColumn ?? nameof(EmployeeListDto.Login);
-
-            if (sortColumn.Equals(nameof(EmployeeListDto.Login), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.User.Login, isDescending);
-
-            if (sortColumn.Equals(nameof(EmployeeListDto.Name), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.User.Name, isDescending);
-
-            if (sortColumn.Equals(nameof(EmployeeListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.User.PhoneNumber, isDescending);
-
-            return query.OrderBy(sortColumn, isDescending);
-        }        
+        }             
     }
 }

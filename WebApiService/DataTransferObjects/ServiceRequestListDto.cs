@@ -33,13 +33,9 @@ namespace WebApiService.DataTransferObjects
         public string Type { get; set; }
 
         [Required]
-        public byte SubmitType { get; set; }
+        public string SubmitType { get; set; }
 
         [Required]
-        public byte Status { get; set; }
-        
-        public int Ordinal { get; set; }
-
-        public int TypeNum { get; set; }
+        public string Status { get; set; }               
     }
 }

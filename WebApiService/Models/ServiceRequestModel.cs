@@ -51,7 +51,7 @@ namespace WebApiService.Models
         public byte Status { get; set; }
 
         [Required]
-        public byte Type { get; set; }
+        public byte RequestType { get; set; }
 
         [Required]
         public byte SubmitType { get; set; }

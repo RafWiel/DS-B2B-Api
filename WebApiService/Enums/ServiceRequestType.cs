@@ -7,6 +7,8 @@
         public const int Hardware = 2;
         public const int Other = 3;
 
+        //pamietaj aby wprowadzic zmiany w DataContext
+
         public static string GetText(int id)
         {
             switch (id)
