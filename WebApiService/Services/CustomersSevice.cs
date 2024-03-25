@@ -71,8 +71,8 @@ namespace WebApiService.Services
                     Id = u.Customer.Id,
                     Login = u.Customer.User.Login,
                     Name = u.Customer.User.Name,
-                    PhoneNumber = u.Customer.User.PhoneNumber,
-                    Type = u.Customer.Type,
+                    PhoneNumber = u.Customer.User.PhoneNumber,                    
+                    Type = DataContext.GetCustomerType(u.Customer.Type),
                     CompanyName = u.CompanyName
                 })
                 .ToListAsync();                    
@@ -94,13 +94,16 @@ namespace WebApiService.Services
             if (sortColumn.Equals(nameof(CustomerListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.Customer.User.PhoneNumber, isDescending);
 
+            if (sortColumn.Equals(nameof(CustomerListDto.Type), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => DataContext.GetCustomerTypeSorting(u.Customer.Type), isDescending);
+
             if (sortColumn.Equals(nameof(CustomerListDto.CompanyName), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.CompanyName, isDescending);
 
             if (sortColumn.Equals(nameof(CustomerListDto.Type), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.Customer.Type, isDescending);
 
-            return query.OrderByWithDirection(u => u.Customer.Id, isDescending);
+            return query.OrderByWithDirection(u => u.Customer.User.Login, isDescending);
         }
 
         public async Task<CustomerDto?> GetSingle(int id)

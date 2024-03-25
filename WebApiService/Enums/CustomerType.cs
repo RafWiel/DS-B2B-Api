@@ -1,9 +1,8 @@
 ﻿namespace WebApiService.Enums
 {
-    public class EmployeeType
+    public class CustomerType
     {
-        public const int None = 0;
-        public const int Administrator = 1;
+        public const int None = 0;        
         public const int Supervisor = 2;
         public const int Employee = 3;
 
@@ -15,8 +14,6 @@
             {
                 case None:
                     return string.Empty;
-                case Administrator:
-                    return "Administrator";
                 case Supervisor:
                     return "Kierownik";
                 case Employee:
@@ -32,8 +29,6 @@
             {
                 case None:
                     return 0;
-                case Administrator: //Administrator
-                    return 1;
                 case Supervisor: //Kierownik
                     return 2;
                 case Employee: //Pracownik

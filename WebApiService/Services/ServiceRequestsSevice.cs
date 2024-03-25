@@ -121,13 +121,13 @@ namespace WebApiService.Services
                 return query.OrderByWithDirection(u => u.Employee!.User.Name, isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Type), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestType(u.RequestType), isDescending);
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestTypeSorting(u.RequestType), isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.SubmitType), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestSubmitType(u.SubmitType), isDescending);
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestSubmitTypeSorting(u.SubmitType), isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Status), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestStatus(u.Status), isDescending);
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestStatusSorting(u.Status), isDescending);
 
             return query.OrderBy(sortColumn, isDescending);
         }

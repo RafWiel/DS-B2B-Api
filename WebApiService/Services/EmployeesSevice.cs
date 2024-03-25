@@ -57,7 +57,7 @@ namespace WebApiService.Services
                     Login = u.User.Login,
                     Name = u.User.Name,
                     PhoneNumber = u.User.PhoneNumber,
-                    Type = u.Type,
+                    Type = DataContext.GetEmployeeType(u.Type),
                 })
                 .ToListAsync();                    
         }
@@ -77,6 +77,9 @@ namespace WebApiService.Services
 
             if (sortColumn.Equals(nameof(EmployeeListDto.PhoneNumber), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.User.PhoneNumber, isDescending);
+
+            if (sortColumn.Equals(nameof(EmployeeListDto.Type), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => DataContext.GetEmployeeTypeSorting(u.Type), isDescending);
 
             return query.OrderBy(sortColumn, isDescending);
         }

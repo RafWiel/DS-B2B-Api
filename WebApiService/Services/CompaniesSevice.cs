@@ -101,7 +101,7 @@ namespace WebApiService.Services
                         Login = u.User.Login,
                         Name = u.User.Name,
                         PhoneNumber = u.User.PhoneNumber,
-                        Type = u.Type
+                        Type = DataContext.GetCustomerType(u.Type),
                     })
                     .OrderBy(u => u.Login)
                     .ToList()

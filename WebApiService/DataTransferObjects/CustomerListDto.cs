@@ -24,6 +24,6 @@ namespace WebApiService.DataTransferObjects
         public string CompanyName { get; set; }
 
         [Required]
-        public byte Type { get; set; }
+        public string Type { get; set; }
     }
 }

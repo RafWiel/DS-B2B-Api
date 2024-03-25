@@ -20,6 +20,6 @@ namespace WebApiService.DataTransferObjects
         public string PhoneNumber { get; set; }
 
         [Required]
-        public byte Type { get; set; }
+        public string Type { get; set; }
     }
 }
