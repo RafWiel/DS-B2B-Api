@@ -17,9 +17,24 @@ namespace WebApiService.Data
         public DbSet<CompanyModel> Companies { get; set; }
         public DbSet<ServiceRequestModel> ServiceRequests { get; set; }
 
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        //#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+        //#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+        public static string DateToString(DateTime date) => throw new NotSupportedException();
+        public static string GetServiceRequestName(int ordinal, DateTime date) => throw new NotSupportedException();
+        public static string GetServiceRequestNameSorting(int ordinal, DateTime date) => throw new NotSupportedException();
+        public static string GetServiceRequestType(byte type) => throw new NotSupportedException();
+        public static string GetServiceRequestTypeSorting(byte type) => throw new NotSupportedException();
+        public static string GetServiceRequestSubmitType(byte type) => throw new NotSupportedException();
+        public static string GetServiceRequestSubmitTypeSorting(byte type) => throw new NotSupportedException();
+        public static string GetServiceRequestStatus(byte status) => throw new NotSupportedException();
+        public static string GetServiceRequestStatusSorting(byte status) => throw new NotSupportedException();
+
+        //public static string GetServiceRequestName(int ordinal, DateTime date)
+        //{
+        //    return $"ZLS/{ordinal}/{date.ToString("MM")}/{date.ToString("yy")}";
+        //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -62,6 +77,30 @@ namespace WebApiService.Data
                         typeMapping: null);
                 });
 
+            modelBuilder.HasDbFunction(() => GetServiceRequestNameSorting(default, default))
+                .HasTranslation(args =>
+                {
+                    var ordinalColumn = (ColumnExpression)args[0];
+                    var dateColumn = (ColumnExpression)args[1];
+
+                    return new SqlFunctionExpression(
+                        functionName: "cast",
+                        arguments: new[]
+                        {
+                            new SqlFragmentExpression(@$"
+                                (
+                                    {ordinalColumn.Name} + 
+                                    datepart(month, {dateColumn.Name}) + 
+                                    datepart(year, {dateColumn.Name})
+                                ) as integer"),
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        type: typeof(int),
+                        typeMapping: null);
+                });
+
+
             modelBuilder.HasDbFunction(() => GetServiceRequestType(default))
                 .HasTranslation(args =>
                 {
@@ -82,6 +121,29 @@ namespace WebApiService.Data
                         nullable: true,
                         argumentsPropagateNullability: new[] { false },
                         type: typeof(string),
+                        typeMapping: null);
+                });
+
+            modelBuilder.HasDbFunction(() => GetServiceRequestTypeSorting(default))
+                .HasTranslation(args =>
+                {
+                    var typeColumn = (ColumnExpression)args[0];
+
+                    return new SqlFunctionExpression(
+                        functionName: "cast",
+                        arguments: new[]
+                        {
+                            new SqlFragmentExpression(@$"
+                                case
+                                    when {typeColumn.Name} = 1 then '{ServiceRequestType.GetSorting(1)}' 
+                                    when {typeColumn.Name} = 2 then '{ServiceRequestType.GetSorting(2)}' 
+                                    when {typeColumn.Name} = 3 then '{ServiceRequestType.GetSorting(3)}' 
+                                    else '' 
+                                end as integer"),
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        type: typeof(int),
                         typeMapping: null);
                 });
 
@@ -106,6 +168,30 @@ namespace WebApiService.Data
                         nullable: true,
                         argumentsPropagateNullability: new[] { false },
                         type: typeof(string),
+                        typeMapping: null);
+                });
+
+            modelBuilder.HasDbFunction(() => GetServiceRequestSubmitTypeSorting(default))
+                .HasTranslation(args =>
+                {
+                    var typeColumn = (ColumnExpression)args[0];
+
+                    return new SqlFunctionExpression(
+                        functionName: "cast",
+                        arguments: new[]
+                        {
+                            new SqlFragmentExpression(@$"
+                                case
+                                    when {typeColumn.Name} = 1 then '{ServiceRequestSubmitType.GetSorting(1)}' 
+                                    when {typeColumn.Name} = 2 then '{ServiceRequestSubmitType.GetSorting(2)}' 
+                                    when {typeColumn.Name} = 3 then '{ServiceRequestSubmitType.GetSorting(3)}' 
+                                    when {typeColumn.Name} = 4 then '{ServiceRequestSubmitType.GetSorting(4)}' 
+                                    else '' 
+                                end as integer"),
+                        },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { false },
+                        type: typeof(int),
                         typeMapping: null);
                 });
 
@@ -137,22 +223,39 @@ namespace WebApiService.Data
                        typeMapping: null);
                });
 
+            modelBuilder.HasDbFunction(() => GetServiceRequestStatusSorting(default))
+               .HasTranslation(args =>
+               {
+                   var typeColumn = (ColumnExpression)args[0];
+
+                   return new SqlFunctionExpression(
+                       functionName: "cast",
+                       arguments: new[]
+                       {
+                            new SqlFragmentExpression(@$"
+                                case
+                                    when {typeColumn.Name} = 1 then '{ServiceRequestStatus.GetSorting(1)}' 
+                                    when {typeColumn.Name} = 2 then '{ServiceRequestStatus.GetSorting(2)}' 
+                                    when {typeColumn.Name} = 3 then '{ServiceRequestStatus.GetSorting(3)}' 
+                                    when {typeColumn.Name} = 4 then '{ServiceRequestStatus.GetSorting(4)}' 
+                                    when {typeColumn.Name} = 5 then '{ServiceRequestStatus.GetSorting(5)}' 
+                                    when {typeColumn.Name} = 6 then '{ServiceRequestStatus.GetSorting(6)}' 
+                                    when {typeColumn.Name} = 7 then '{ServiceRequestStatus.GetSorting(7)}' 
+                                    when {typeColumn.Name} = 8 then '{ServiceRequestStatus.GetSorting(8)}' 
+                                    else '' 
+                                end as integer"),
+                       },
+                       nullable: true,
+                       argumentsPropagateNullability: new[] { false },
+                       type: typeof(int),
+                       typeMapping: null);
+               });
+
             //modelBuilder.HasDbFunction(() => GetServiceRequestName(default, default))
             //    .HasTranslation(arguments =>
             //    {
             //        return new SqlFragmentExpression("COUNT(*) OVER()");
             //    });
-        }
-
-        public static string DateToString(DateTime date) => throw new NotSupportedException();
-        public static string GetServiceRequestName(int ordinal, DateTime date) => throw new NotSupportedException();
-        public static string GetServiceRequestType(byte type) => throw new NotSupportedException();
-        public static string GetServiceRequestSubmitType(byte type) => throw new NotSupportedException();
-        public static string GetServiceRequestStatus(byte status) => throw new NotSupportedException();
-
-        //public static string GetServiceRequestName1(int ordinal, DateTime date)
-        //{
-        //    return $"ZLS/{ordinal}/{date.ToString("MM")}/{date.ToString("yy")}";
-        //}
+        }        
     }
 }

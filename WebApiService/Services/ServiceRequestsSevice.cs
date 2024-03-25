@@ -105,13 +105,11 @@ namespace WebApiService.Services
             var isDescending = (sortOrder ?? string.Empty).Equals("desc", StringComparison.OrdinalIgnoreCase);
             sortColumn = sortColumn ?? nameof(ServiceRequestListDto.Date);
 
-            dodaj metody do sortowania ktore zwroca inty zamiast stringow
-
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Date), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.CreationDate, isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Name), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate), isDescending);
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestNameSorting(u.Ordinal, u.CreationDate), isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Customer), StringComparison.OrdinalIgnoreCase))
                 return query.OrderByWithDirection(u => u.Customer!.User.Name, isDescending);

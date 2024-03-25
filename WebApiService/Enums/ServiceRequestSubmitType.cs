@@ -10,7 +10,7 @@ namespace WebApiService.Enums
         public const int Phone = 3;
         public const int Internal = 4;
 
-        //pamietaj aby wprowadzic zmiany w DataContext
+        //pamietaj aby wprowadzic zmiany w DataContext OnModelCreating
 
         public static string GetText(int id)
         {
@@ -29,6 +29,25 @@ namespace WebApiService.Enums
             }
 
             return string.Empty;
+        }
+
+        public static int GetSorting(int id)
+        {
+            switch (id)
+            {
+                case None:
+                    return 0;
+                case Email: //E-mail
+                    return 1;                               
+                case Phone: //Telefon
+                    return 2;
+                case Internal: //Wewnętrzne
+                    return 3;
+                case WWW: //WWW
+                    return 4;
+            }
+
+            return 0;
         }
     }
 }
