@@ -26,7 +26,10 @@ namespace WebApiService.Models
         //public string? Name => $"ZLS/{Ordinal}/{CreationDate.ToString("MM")}/{CreationDate.ToString("yy")}";
 
         public int? CustomerId { get; set; }
-        
+
+        [NotMapped]
+        public string? CompanyName { get; set; }
+
         public CustomerModel? Customer { get; set; }
 
         public int? EmployeeId { get; set; }

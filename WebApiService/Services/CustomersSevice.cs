@@ -36,13 +36,15 @@ namespace WebApiService.Services
         {            
             var query = _context.Customers
                 .Include(u => u.User)
-                .Join(_context.Companies, 
-                    customer => customer.CompanyModelId, 
+                .GroupJoin(_context.Companies,
+                    customer => customer.CompanyModelId,
                     company => company.Id,
-                    (customer, company) => new ExtendedCustomerModel 
-                    { 
-                        Customer = customer, 
-                        CompanyName = company.Name
+                    (customer, company) => new { customer, company })
+                .SelectMany(u => u.company.DefaultIfEmpty(), 
+                    (u, company) => new ExtendedCustomerModel
+                    {
+                        Customer = u.customer,
+                        CompanyName = company != null ? company.Name : string.Empty
                     })
                 .Where(u =>
                     u.Customer.User.IsActive &&

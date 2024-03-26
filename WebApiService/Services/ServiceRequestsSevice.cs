@@ -20,7 +20,7 @@ namespace WebApiService.Services
     {
         private readonly DataContext _context;
         private readonly ILogger<IServiceRequestsService> _logger;
-
+        
         public ServiceRequestsService(DataContext context, ILogger<IServiceRequestsService> logger)
         {
             _context = context;
@@ -36,64 +36,66 @@ namespace WebApiService.Services
             string? sortOrder, 
             int? page)
         {
-            var query = _context.ServiceRequests
+            var query = _context.ServiceRequests                
+                .GroupJoin(_context.Companies,
+                    request => request.Customer.CompanyModelId,
+                    company => company.Id,
+                    (request, company) => new { request, company })
+                .SelectMany(u => u.company.DefaultIfEmpty(),
+                    (u, company) => new 
+                    {
+                        request = u.request,
+                        companyName = company != null ? company.Name : string.Empty
+                    })
                 .Where(u =>
                     (
                         !string.IsNullOrEmpty(search) ?
                         (
-                            DataContext.DateToString(u.CreationDate).Contains(search.ToLower()) ||
-                            DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate).ToLower().Contains(search.ToLower()) ||
-                            u.Topic.ToLower().Contains(search.ToLower()) ||
-                            u.Description.ToLower().Contains(search.ToLower()) ||
-                            (u.Customer != null && u.Customer.User.Name.ToLower().Contains(search.ToLower())) ||
-                            (u.Employee != null && u.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
-                            (u.PartnerCompany != null && u.PartnerCompany.Name.ToLower().Contains(search.ToLower()))
+                            DataContext.DateToString(u.request.CreationDate).Contains(search.ToLower()) ||
+                            DataContext.GetServiceRequestName(u.request.Ordinal, u.request.CreationDate).ToLower().Contains(search.ToLower()) ||
+                            u.request.Topic.ToLower().Contains(search.ToLower()) ||
+                            u.request.Description.ToLower().Contains(search.ToLower()) ||
+                            (u.request.Customer != null && u.request.Customer.User.Name.ToLower().Contains(search.ToLower())) ||
+                            (u.request.Employee != null && u.request.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
+                            (u.request.PartnerCompany != null && u.request.PartnerCompany.Name.ToLower().Contains(search.ToLower()))
                         ) : true
                     )
                     && (
-                        type != null && type != 0 ? u.RequestType == type : true
+                        type != null && type != 0 ? u.request.RequestType == type : true
                     )
                     && (
-                        submitType != null && submitType != 0 ? u.SubmitType == submitType : true
+                        submitType != null && submitType != 0 ? u.request.SubmitType == submitType : true
                     )
                     && (
-                        status != null && status != 0 ? u.Status == status : true
+                        status != null && status != 0 ? u.request.Status == status : true
                     )
                 );
 
             var sql = query.ToQueryString(); 
 
-            query = ApplySorting(query, sortColumn, sortOrder); 
+            //query = ApplySorting(query, sortColumn, sortOrder); 
+
+            albo dodaj extra pola do ServiceRequestListDto, albo przerob na lambde      
+            sprobuj lambde na poczatek, moze bedzie prostsze zapytanie
+
 
             return await query
                 .Skip(50 * ((page ?? 1) - 1))
-                .Take(50)
-                .Select(u => new ServiceRequestModel //najpierw zwroc model, bo inaczej beda nulle w polach wyliczeniowych (np GetServiceRequestName)
-                {
-                    CreationDate = u.CreationDate,
-                    Topic = u.Topic,
-                    Description = u.Description,
-                    Customer = u.Customer,
-                    PartnerCompany = u.PartnerCompany,
-                    Employee = u.Employee,
-                    Ordinal = u.Ordinal,
-                    RequestType = u.RequestType,
-                    SubmitType = u.SubmitType,
-                    Status = u.Status,
-                })
-                .Select(u => new ServiceRequestListDto
-                {
-                    Id = u.Id,
-                    Date = u.CreationDate,
-                    Name = DataContext.GetServiceRequestName(u.Ordinal, u.CreationDate),
-                    Topic = u.Topic,
-                    Description = u.Description,
-                    Customer = u.Customer != null ? u.Customer.User.Name : string.Empty,
-                    Company = u.PartnerCompany != null ? u.PartnerCompany.Name : string.Empty,
-                    Employee = u.Employee != null ? u.Employee.User.Name : string.Empty,
-                    Type = DataContext.GetServiceRequestType(u.RequestType),
-                    SubmitType = DataContext.GetServiceRequestSubmitType(u.SubmitType),
-                    Status = DataContext.GetServiceRequestStatus(u.Status),
+                .Take(50)                
+                .Select((u) => new ServiceRequestListDto
+                {                    
+                    Id = u.request.Id,
+                    Date = u.request.CreationDate,
+                    Ordinal = u.request.Ordinal, tutaj
+                    Name = DataContext.GetServiceRequestName(u.request.Ordinal, u.request.CreationDate),
+                    Topic = u.request.Topic,
+                    Description = u.request.Description,
+                    Customer = u.request.Customer != null ? u.request.Customer.User.Name : string.Empty,
+                    Company = u.companyName != null ? u.companyName : string.Empty,
+                    Employee = u.request.Employee != null ? u.request.Employee.User.Name : string.Empty,
+                    //Type = DataContext.GetServiceRequestType(u.request.RequestType),
+                    //SubmitType = DataContext.GetServiceRequestSubmitType(u.request.SubmitType),
+                    //Status = DataContext.GetServiceRequestStatus(u.request.Status),
                 })
                 .ToListAsync();                    
         }

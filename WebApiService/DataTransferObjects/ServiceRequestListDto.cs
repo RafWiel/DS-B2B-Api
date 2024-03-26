@@ -15,6 +15,8 @@ namespace WebApiService.DataTransferObjects
         [Required]
         public string Name { get; set; }
 
+        public int Ordinal { get; set; }
+
         [Required]
         public string Topic { get; set; }
 
