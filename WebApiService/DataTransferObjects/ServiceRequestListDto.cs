@@ -15,8 +15,6 @@ namespace WebApiService.DataTransferObjects
         [Required]
         public string Name { get; set; }
 
-        public int Ordinal { get; set; }
-
         [Required]
         public string Topic { get; set; }
 
@@ -38,6 +36,14 @@ namespace WebApiService.DataTransferObjects
         public string SubmitType { get; set; }
 
         [Required]
-        public string Status { get; set; }               
+        public string Status { get; set; }
+        
+        public int Ordinal { get; set; }
+
+        public byte TypeNum { get; set; }
+        
+        public byte SubmitTypeNum { get; set; }
+
+        public byte StatusNum { get; set; }
     }
 }

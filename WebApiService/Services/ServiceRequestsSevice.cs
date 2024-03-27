@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Identity;
 using WebApiService.Data;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebApiService.Services
 {
@@ -20,7 +21,13 @@ namespace WebApiService.Services
     {
         private readonly DataContext _context;
         private readonly ILogger<IServiceRequestsService> _logger;
-        
+
+        private class ExtendedServiceRequestModel
+        {
+            public ServiceRequestModel Request { get; set; }
+            public string CompanyName { get; set; }
+        }
+
         public ServiceRequestsService(DataContext context, ILogger<IServiceRequestsService> logger)
         {
             _context = context;
@@ -28,79 +35,75 @@ namespace WebApiService.Services
         }
 
         public async Task<List<ServiceRequestListDto>> Get(
-            string? search, 
-            int? type, 
-            int? submitType, 
-            int? status, 
-            string? sortColumn, 
-            string? sortOrder, 
+            string? search,
+            int? type,
+            int? submitType,
+            int? status,
+            string? sortColumn,
+            string? sortOrder,
             int? page)
         {
-            var query = _context.ServiceRequests                
-                .GroupJoin(_context.Companies,
-                    request => request.Customer.CompanyModelId,
-                    company => company.Id,
-                    (request, company) => new { request, company })
-                .SelectMany(u => u.company.DefaultIfEmpty(),
-                    (u, company) => new 
-                    {
-                        request = u.request,
-                        companyName = company != null ? company.Name : string.Empty
-                    })
-                .Where(u =>
-                    (
+
+            var query =
+                from request in _context.ServiceRequests
+                join c in _context.Companies on
+                    request.Customer.CompanyModelId equals c.Id into companies
+                from company in companies.DefaultIfEmpty()
+                where (
                         !string.IsNullOrEmpty(search) ?
                         (
-                            DataContext.DateToString(u.request.CreationDate).Contains(search.ToLower()) ||
-                            DataContext.GetServiceRequestName(u.request.Ordinal, u.request.CreationDate).ToLower().Contains(search.ToLower()) ||
-                            u.request.Topic.ToLower().Contains(search.ToLower()) ||
-                            u.request.Description.ToLower().Contains(search.ToLower()) ||
-                            (u.request.Customer != null && u.request.Customer.User.Name.ToLower().Contains(search.ToLower())) ||
-                            (u.request.Employee != null && u.request.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
-                            (u.request.PartnerCompany != null && u.request.PartnerCompany.Name.ToLower().Contains(search.ToLower()))
+                            DataContext.DateToString(request.CreationDate).Contains(search.ToLower()) ||
+                            DataContext.GetServiceRequestName(request.Ordinal, request.CreationDate).ToLower().Contains(search.ToLower()) ||
+                            request.Topic.ToLower().Contains(search.ToLower()) ||
+                            request.Description.ToLower().Contains(search.ToLower()) ||
+                            (request.Customer != null && request.Customer.User.Name.ToLower().Contains(search.ToLower())) ||
+                            (request.Employee != null && request.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
+                            (company.Name != null && company.Name.ToLower().Contains(search.ToLower()))
                         ) : true
                     )
                     && (
-                        type != null && type != 0 ? u.request.RequestType == type : true
+                        type != null && type != 0 ? request.RequestType == type : true
                     )
                     && (
-                        submitType != null && submitType != 0 ? u.request.SubmitType == submitType : true
+                        submitType != null && submitType != 0 ? request.SubmitType == submitType : true
                     )
                     && (
-                        status != null && status != 0 ? u.request.Status == status : true
+                        status != null && status != 0 ? request.Status == status : true
                     )
-                );
 
-            var sql = query.ToQueryString(); 
+                select new ExtendedServiceRequestModel
+                {
+                    Request = request,
+                    CompanyName = company.Name ?? string.Empty,
+                };            
 
-            //query = ApplySorting(query, sortColumn, sortOrder); 
+            query = ApplySorting(query, sortColumn, sortOrder);
 
-            albo dodaj extra pola do ServiceRequestListDto, albo przerob na lambde      
-            sprobuj lambde na poczatek, moze bedzie prostsze zapytanie
-
-
-            return await query
+            return await query                
                 .Skip(50 * ((page ?? 1) - 1))
-                .Take(50)                
+                .Take(50)
                 .Select((u) => new ServiceRequestListDto
-                {                    
-                    Id = u.request.Id,
-                    Date = u.request.CreationDate,
-                    Ordinal = u.request.Ordinal, tutaj
-                    Name = DataContext.GetServiceRequestName(u.request.Ordinal, u.request.CreationDate),
-                    Topic = u.request.Topic,
-                    Description = u.request.Description,
-                    Customer = u.request.Customer != null ? u.request.Customer.User.Name : string.Empty,
-                    Company = u.companyName != null ? u.companyName : string.Empty,
-                    Employee = u.request.Employee != null ? u.request.Employee.User.Name : string.Empty,
-                    //Type = DataContext.GetServiceRequestType(u.request.RequestType),
-                    //SubmitType = DataContext.GetServiceRequestSubmitType(u.request.SubmitType),
-                    //Status = DataContext.GetServiceRequestStatus(u.request.Status),
+                {
+                    Id = u.Request.Id,
+                    Date = u.Request.CreationDate,
+                    Name = DataContext.GetServiceRequestName(u.Request.Ordinal, u.Request.CreationDate),
+                    Topic = u.Request.Topic,
+                    Description = u.Request.Description,
+                    Customer = u.Request.Customer != null ? u.Request.Customer.User.Name : string.Empty,
+                    Company = u.CompanyName,
+                    Employee = u.Request.Employee != null ? u.Request.Employee.User.Name : string.Empty,
+                    Type = DataContext.GetServiceRequestType(u.Request.RequestType),
+                    SubmitType = DataContext.GetServiceRequestSubmitType(u.Request.SubmitType),
+                    Status = DataContext.GetServiceRequestStatus(u.Request.Status),
+                    Ordinal = u.Request.Ordinal,
+                    TypeNum = u.Request.RequestType,
+                    SubmitTypeNum = u.Request.SubmitType,
+                    StatusNum = u.Request.Status,
                 })
-                .ToListAsync();                    
-        }
+                .ToListAsync();
+        }        
 
-        private IQueryable<ServiceRequestModel> ApplySorting(IQueryable<ServiceRequestModel> query, string? sortColumn, string? sortOrder)
+        private IQueryable<ExtendedServiceRequestModel> ApplySorting(IQueryable<ExtendedServiceRequestModel> query, string? sortColumn, string? sortOrder)
         {
             //var sql = query.ToQueryString();    
 
@@ -108,30 +111,33 @@ namespace WebApiService.Services
             sortColumn = sortColumn ?? nameof(ServiceRequestListDto.Date);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Date), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.CreationDate, isDescending);
+                return query.OrderByWithDirection(u => u.Request.CreationDate, isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Name), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestNameSorting(u.Ordinal, u.CreationDate), isDescending);
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestNameSorting(u.Request.Ordinal, u.Request.CreationDate), isDescending);
+
+            if (sortColumn.Equals(nameof(ServiceRequestListDto.Topic), StringComparison.OrdinalIgnoreCase))
+                return query.OrderByWithDirection(u => u.Request.Topic, isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Customer), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.Customer!.User.Name, isDescending);
+                return query.OrderByWithDirection(u => u.Request.Customer!.User.Name, isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Company), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.PartnerCompany!.Name, isDescending);
+                return query.OrderByWithDirection(u => u.CompanyName, isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Employee), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => u.Employee!.User.Name, isDescending);
+                return query.OrderByWithDirection(u => u.Request.Employee!.User.Name, isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Type), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestTypeSorting(u.RequestType), isDescending);
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestTypeSorting(u.Request.RequestType), isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.SubmitType), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestSubmitTypeSorting(u.SubmitType), isDescending);
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestSubmitTypeSorting(u.Request.SubmitType), isDescending);
 
             if (sortColumn.Equals(nameof(ServiceRequestListDto.Status), StringComparison.OrdinalIgnoreCase))
-                return query.OrderByWithDirection(u => DataContext.GetServiceRequestStatusSorting(u.Status), isDescending);
+                return query.OrderByWithDirection(u => DataContext.GetServiceRequestStatusSorting(u.Request.Status), isDescending);
 
-            return query.OrderBy(sortColumn, isDescending);
+            return query;
         }
 
         //public async Task<EmployeeDto?> GetSingle(int id)
