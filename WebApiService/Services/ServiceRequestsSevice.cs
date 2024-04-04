@@ -36,6 +36,9 @@ namespace WebApiService.Services
 
         public async Task<List<ServiceRequestListDto>> Get(
             string? search,
+            DateTime? start, 
+            DateTime? end,
+            int? employee,
             int? type,
             int? submitType,
             int? status,
@@ -52,7 +55,7 @@ namespace WebApiService.Services
                 where (
                         !string.IsNullOrEmpty(search) ?
                         (
-                            DataContext.DateToString(request.CreationDate).Contains(search.ToLower()) ||
+                            DataContext.DateToString(request.CreationDate).ToLower().Contains(search.ToLower()) ||
                             DataContext.GetServiceRequestName(request.Ordinal, request.CreationDate).ToLower().Contains(search.ToLower()) ||
                             request.Topic.ToLower().Contains(search.ToLower()) ||
                             request.Description.ToLower().Contains(search.ToLower()) ||
@@ -60,6 +63,15 @@ namespace WebApiService.Services
                             (request.Employee != null && request.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
                             (company.Name != null && company.Name.ToLower().Contains(search.ToLower()))
                         ) : true
+                    )
+                    && (
+                        start != null ? request.CreationDate >= start : true
+                    )
+                    && (
+                        end != null ? request.CreationDate <= end.Value.AddDays(1) : true
+                    )
+                    && (
+                        employee != null ? request.EmployeeId == employee : true
                     )
                     && (
                         type != null && type != 0 ? request.RequestType == type : true

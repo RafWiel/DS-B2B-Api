@@ -25,6 +25,9 @@ namespace WebApiService.Controllers
         [HttpGet]        
         public async Task<ActionResult<List<ServiceRequestListDto>>> Get(
             string? search, 
+            DateTime? start,
+            DateTime? end,
+            int? employee,
             int? type,
             int? submitType, 
             int? status,
@@ -32,7 +35,18 @@ namespace WebApiService.Controllers
             [FromQuery(Name = "sort-order")] string? sortOrder, 
             int? page)
         {
-            var items = await _service.Get(search, type, submitType, status, sortColumn, sortOrder, page);
+            var items = await _service.Get(
+                search, 
+                start, 
+                end, 
+                employee,
+                type, 
+                submitType, 
+                status, 
+                sortColumn, 
+                sortOrder, 
+                page);
+
             if (items == null)
                 return NotFound();
 
