@@ -17,6 +17,7 @@ namespace WebApiService.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .UseCollation("Polish_CI_AS")
                 .HasAnnotation("ProductVersion", "6.0.26")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 

@@ -227,12 +227,12 @@ namespace WebApiService.Data
                                 case
                                     when {typeColumn.Name} = 1 then '{ServiceRequestStatus.GetText(1)}' 
                                     when {typeColumn.Name} = 2 then '{ServiceRequestStatus.GetText(2)}' 
-                                    when {typeColumn.Name} = 3 then '{ServiceRequestStatus.GetText(3)}' 
                                     when {typeColumn.Name} = 4 then '{ServiceRequestStatus.GetText(4)}' 
-                                    when {typeColumn.Name} = 5 then '{ServiceRequestStatus.GetText(5)}' 
-                                    when {typeColumn.Name} = 6 then '{ServiceRequestStatus.GetText(6)}' 
-                                    when {typeColumn.Name} = 7 then '{ServiceRequestStatus.GetText(7)}' 
                                     when {typeColumn.Name} = 8 then '{ServiceRequestStatus.GetText(8)}' 
+                                    when {typeColumn.Name} = 16 then '{ServiceRequestStatus.GetText(16)}' 
+                                    when {typeColumn.Name} = 32 then '{ServiceRequestStatus.GetText(32)}' 
+                                    when {typeColumn.Name} = 64 then '{ServiceRequestStatus.GetText(64)}' 
+                                    when {typeColumn.Name} = 128 then '{ServiceRequestStatus.GetText(128)}' 
                                     else '' 
                                 end as varchar(32)"),
                        },
@@ -255,12 +255,12 @@ namespace WebApiService.Data
                                 case
                                     when {typeColumn.Name} = 1 then '{ServiceRequestStatus.GetSorting(1)}' 
                                     when {typeColumn.Name} = 2 then '{ServiceRequestStatus.GetSorting(2)}' 
-                                    when {typeColumn.Name} = 3 then '{ServiceRequestStatus.GetSorting(3)}' 
                                     when {typeColumn.Name} = 4 then '{ServiceRequestStatus.GetSorting(4)}' 
-                                    when {typeColumn.Name} = 5 then '{ServiceRequestStatus.GetSorting(5)}' 
-                                    when {typeColumn.Name} = 6 then '{ServiceRequestStatus.GetSorting(6)}' 
-                                    when {typeColumn.Name} = 7 then '{ServiceRequestStatus.GetSorting(7)}' 
                                     when {typeColumn.Name} = 8 then '{ServiceRequestStatus.GetSorting(8)}' 
+                                    when {typeColumn.Name} = 16 then '{ServiceRequestStatus.GetSorting(16)}' 
+                                    when {typeColumn.Name} = 32 then '{ServiceRequestStatus.GetSorting(32)}' 
+                                    when {typeColumn.Name} = 64 then '{ServiceRequestStatus.GetSorting(64)}' 
+                                    when {typeColumn.Name} = 128 then '{ServiceRequestStatus.GetSorting(128)}' 
                                     else '' 
                                 end as integer"),
                        },

@@ -29,7 +29,7 @@ namespace WebApiService.Controllers
             DateTime? end,
             int? employee,
             int? type,
-            int? submitType, 
+            [FromQuery(Name = "submit-type")] int? submitType, 
             int? status,
             [FromQuery(Name = "sort-column")] string? sortColumn,
             [FromQuery(Name = "sort-order")] string? sortOrder, 

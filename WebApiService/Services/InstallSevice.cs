@@ -137,6 +137,8 @@ namespace WebApiService.Services
             int ordinal = 1;
             int month = DateTime.Now.AddDays(index).Month;
 
+            var statuses = new byte[] { 1, 2, 4, 8, 16, 32, 64, 128};            
+
             for (int i = 1; i <= 100; i++)
             {                
                 var date = DateTime.Now.AddDays(index);
@@ -154,7 +156,7 @@ namespace WebApiService.Services
                     EmployeeId = index,
                     Topic = $"Tytuł zamówienia {i}",
                     Description = $"Odrobinkę dłuższa treść zamówienia {i}",
-                    Status = (byte)random.Next(1, 9),
+                    Status = statuses[random.Next(0, 8)],
                     RequestType = (byte)random.Next(1, 4),
                     SubmitType = (byte)random.Next(1, 5),                    
                 });

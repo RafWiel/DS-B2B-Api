@@ -12,13 +12,14 @@ using WebApiService.Data;
 namespace WebApiService.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240318073720_AddServiceRequests")]
-    partial class AddServiceRequests
+    [Migration("20240408061348_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .UseCollation("Polish_CI_AS")
                 .HasAnnotation("ProductVersion", "6.0.26")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -164,6 +165,9 @@ namespace WebApiService.Migrations
                     b.Property<DateTime?>("ReminderDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<byte>("RequestType")
+                        .HasColumnType("tinyint");
+
                     b.Property<byte>("Status")
                         .HasColumnType("tinyint");
 
@@ -174,9 +178,6 @@ namespace WebApiService.Migrations
                         .IsRequired()
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
-
-                    b.Property<byte>("Type")
-                        .HasColumnType("tinyint");
 
                     b.HasKey("Id");
 

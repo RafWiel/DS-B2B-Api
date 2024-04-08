@@ -80,7 +80,7 @@ namespace WebApiService.Services
                         submitType != null && submitType != 0 ? request.SubmitType == submitType : true
                     )
                     && (
-                        status != null && status != 0 ? request.Status == status : true
+                        status != null && status != 0 ? (request.Status & status) != 0 : true
                     )
 
                 select new ExtendedServiceRequestModel
