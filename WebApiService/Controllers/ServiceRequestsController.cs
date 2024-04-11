@@ -104,21 +104,21 @@ namespace WebApiService.Controllers
         //    return BadRequest();
         //}
 
-        //[HttpDelete("{id:int}")]
-        //public async Task<ActionResult> Delete(int id)
-        //{
-        //    var result = await _service.Delete(id);
+        [HttpDelete("{id:int}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var result = await _service.Delete(id);
 
-        //    return result ? Ok() : BadRequest();
-        //}
+            return result ? Ok() : BadRequest();
+        }
 
-        //[HttpDelete]
-        //public async Task<ActionResult> DeleteAll()
-        //{
-        //    var result = await _service.DeleteAll();
+        [HttpDelete]
+        public async Task<ActionResult> DeleteAll()
+        {
+            var result = await _service.DeleteAll();
 
-        //    return result ? Ok() : BadRequest();
-        //}
+            return result ? Ok() : BadRequest();
+        }
     }
 }
 

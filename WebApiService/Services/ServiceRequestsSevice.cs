@@ -270,35 +270,31 @@ namespace WebApiService.Services
         //    };
         //}
 
-        //public async Task<Boolean> Delete(int id)
-        //{
-        //    var model = await _context.Employees
-        //        .Include(u => u.User)
-        //        .SingleOrDefaultAsync(u => u.Id == id && u.User.IsActive);
+        public async Task<Boolean> Delete(int id)
+        {
+            var model = await _context.ServiceRequests
+                .SingleOrDefaultAsync(u => u.Id == id);
 
-        //    if (model == null)
-        //    {
-        //        _logger.LogWarning($"Employee id: {id} not found");
-        //        return false;
-        //    }
+            if (model == null)
+            {
+                _logger.LogWarning($"Service request id: {id} not found");
+                return false;
+            }
 
-        //    model.User.IsActive = false;
+            _context.ServiceRequests.Remove(model);
 
-        //    var result = await _context.SaveChangesAsync();
+            var result = await _context.SaveChangesAsync();
 
-        //    return result > 0;
-        //}
+            return result > 0;
+        }
 
-        //public async Task<Boolean> DeleteAll()
-        //{
-        //    var result = await _context.Database.ExecuteSqlRawAsync(@"
-        //        update Users 
-        //        set IsActive = 0 
-        //        from Users 
-        //        inner join Employees on Users.Id = Employees.UserId
-        //    ");
+        public async Task<Boolean> DeleteAll()
+        {
+            var result = await _context.Database.ExecuteSqlRawAsync(@"
+                delete from ServiceRequests                
+            ");
 
-        //    return result > 0;            
-        //}              
+            return result > 0;
+        }
     }
 }
