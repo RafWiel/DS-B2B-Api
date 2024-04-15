@@ -152,23 +152,27 @@ namespace WebApiService.Services
             return query;
         }
 
-        //public async Task<EmployeeDto?> GetSingle(int id)
-        //{
-        //    var model = await _context.Employees
-        //        .Include(u => u.User)
-        //        .SingleOrDefaultAsync(u => u.Id == id);                
+        public async Task<ServiceRequestDto?> GetSingle(int id)
+        {
+            var model = await _context.ServiceRequests                
+                .SingleOrDefaultAsync(u => u.Id == id);
 
-        //    return model == null ? null : new EmployeeDto
-        //    {
-        //        Id = model.Id,
-        //        Type = model.Type,
-        //        Login = model.User.Login,
-        //        Name = model.User.Name,
-        //        PhoneNumber = model.User.PhoneNumber,
-        //        Email = model.User.Email,
-        //        IsMailing = model.IsMailing
-        //    };
-        //}
+            return model == null ? null : new ServiceRequestDto
+            {
+                Id = model.Id,
+                CreationDate = model.CreationDate,
+                ClosureDate = model.ClosureDate,
+                ReminderDate = model.ReminderDate,
+                Ordinal = model.Ordinal,
+                CompanyName = model.CompanyName,
+                Topic = model.Topic,
+                Description = model.Description,
+                Status = model.Status,
+                RequestType = model.RequestType,
+                SubmitType = model.SubmitType,
+                Invoice = model.Invoice
+            };
+        }
 
         //public async Task<ResponseModel> Add(EmployeeDto dto)
         //{

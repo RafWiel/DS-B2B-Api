@@ -53,15 +53,15 @@ namespace WebApiService.Controllers
             return Ok(items);
         }
 
-        //[HttpGet("{id:int}")]
-        //public async Task<ActionResult<EmployeeDto>> GetSingle(int id)
-        //{            
-        //    var dto = await _service.GetSingle(id);
-        //    if (dto == null)
-        //        return NotFound();
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<ServiceRequestDto>> GetSingle(int id)
+        {
+            var dto = await _service.GetSingle(id);
+            if (dto == null)
+                return NotFound();
 
-        //    return Ok(dto);
-        //}
+            return Ok(dto);
+        }
 
         //[HttpPost]
         //public async Task<ActionResult<IdResponseDto>> Add(EmployeeDto dto)
