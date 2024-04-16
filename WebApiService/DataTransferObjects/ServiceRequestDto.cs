@@ -25,9 +25,9 @@ namespace WebApiService.DataTransferObjects
         //public CompanyModel? PartnerCompany { get; set; }
         public string Topic { get; set; }
         public string Description { get; set; }
-        public byte Status { get; set; }
-        public byte RequestType { get; set; }
-        public byte SubmitType { get; set; }
+        public string Status { get; set; }
+        public string RequestType { get; set; }
+        public string SubmitType { get; set; }
         public string? Invoice { get; set; }        
     }
 }

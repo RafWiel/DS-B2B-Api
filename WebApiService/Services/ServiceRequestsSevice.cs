@@ -167,9 +167,9 @@ namespace WebApiService.Services
                 CompanyName = model.CompanyName,
                 Topic = model.Topic,
                 Description = model.Description,
-                Status = model.Status,
-                RequestType = model.RequestType,
-                SubmitType = model.SubmitType,
+                Status = ServiceRequestStatus.GetText(model.Status),
+                RequestType = ServiceRequestType.GetText(model.RequestType),
+                SubmitType = ServiceRequestSubmitType.GetText(model.SubmitType),
                 Invoice = model.Invoice
             };
         }
