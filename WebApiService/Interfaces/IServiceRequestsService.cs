@@ -18,7 +18,7 @@ namespace WebApiService.Interfaces
             string? sortOrder, 
             int? page);
         Task<ServiceRequestDto?> GetSingle(int id);
-        //Task<ResponseModel> Add(EmployeeDto dto);
+        Task<IdResponseModel> Add(NewServiceRequestDto dto);
         //Task<ResponseModel> Update(EmployeeDto dto);
         Task<Boolean> Delete(int id);
         Task<Boolean> DeleteAll();

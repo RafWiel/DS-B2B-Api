@@ -63,24 +63,24 @@ namespace WebApiService.Controllers
             return Ok(dto);
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<IdResponseDto>> Add(EmployeeDto dto)
-        //{
-        //    var result = await _service.Add(dto);
+        [HttpPost]
+        public async Task<ActionResult<IdResponseDto>> Add(NewServiceRequestDto dto)
+        {
+            var result = await _service.Add(dto);
 
-        //    if (result.StatusCode == HttpStatusCode.OK)
-        //    {
-        //        return Ok(new IdResponseDto
-        //        {
-        //            Id = result.Id
-        //        });
-        //    }
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                return Ok(new IdResponseDto
+                {
+                    Id = result.Id
+                });
+            }
 
-        //    if (result.StatusCode == HttpStatusCode.Conflict)
-        //        return Conflict();
+            if (result.StatusCode == HttpStatusCode.Conflict)
+                return Conflict();
 
-        //    return BadRequest();
-        //}
+            return BadRequest();
+        }
 
         //[HttpPut]
         //public async Task<ActionResult<IdResponseDto>> Update(EmployeeDto dto)

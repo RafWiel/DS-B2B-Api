@@ -174,52 +174,28 @@ namespace WebApiService.Services
             };
         }
 
-        //public async Task<ResponseModel> Add(EmployeeDto dto)
-        //{
-        //    var model = await _context.Employees
-        //       .FirstOrDefaultAsync(u =>
-        //            u.User.IsActive &&
-        //            (
-        //                u.User.Login.ToLower().Equals(dto.Login.ToLower()) ||
-        //                u.User.Email.ToLower().Equals(dto.Email.ToLower()) ||
-        //                u.User.PhoneNumber.ToLower().Equals(dto.PhoneNumber.ToLower())
-        //            )
-        //        );
+        public async Task<IdResponseModel> Add(NewServiceRequestDto dto)
+        {            
+            var model = new ServiceRequestModel
+            {
+                CreationDate = DateTime.UtcNow,
+                CustomerId = dto.CustomerId,
+                Topic = dto.Topic,
+                Description = dto.Description,
+                RequestType = dto.RequestType,
+                SubmitType = dto.SubmitType,
+            };
 
-        //    if (model != null)
-        //    {
-        //        _logger.LogWarning($"Employee {dto.Login} already exists");
+            _context.ServiceRequests.Add(model);
 
-        //        return new ResponseModel 
-        //        { 
-        //            StatusCode = HttpStatusCode.Conflict
-        //        };
-        //    }
+            var result = await _context.SaveChangesAsync();
 
-        //    model = new EmployeeModel
-        //    {
-        //        User = new UserModel
-        //        {
-        //            Login = dto.Login,
-        //            Name = dto.Name,
-        //            PhoneNumber = dto.PhoneNumber,
-        //            Email = dto.Email,
-        //            IsActive = true
-        //        },
-        //        Type = dto.Type,
-        //        IsMailing = dto.IsMailing
-        //    };
-
-        //    _context.Employees.Add(model);
-
-        //    var result = await _context.SaveChangesAsync();
-
-        //    return new ResponseModel
-        //    {
-        //        Id = result <= 0 ? 0 : model.Id,
-        //        StatusCode = result <= 0 ? HttpStatusCode.BadRequest : HttpStatusCode.OK
-        //    };
-        //}
+            return new IdResponseModel
+            {
+                Id = result <= 0 ? 0 : model.Id,
+                StatusCode = result <= 0 ? HttpStatusCode.BadRequest : HttpStatusCode.OK
+            };
+        }
 
         //public async Task<ResponseModel> Update(EmployeeDto dto)
         //{
