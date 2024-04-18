@@ -48,9 +48,8 @@ namespace WebApiService.Models
         [StringLength(64)]
         public string Topic { get; set; }
 
-        [Required]
         [StringLength(1024)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         public byte Status { get; set; }

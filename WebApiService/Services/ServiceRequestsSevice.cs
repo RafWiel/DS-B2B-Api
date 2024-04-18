@@ -100,7 +100,7 @@ namespace WebApiService.Services
                     Date = u.Request.CreationDate,
                     Name = DataContext.GetServiceRequestName(u.Request.Ordinal, u.Request.CreationDate),
                     Topic = u.Request.Topic,
-                    Description = u.Request.Description,
+                    Description = u.Request.Description ?? string.Empty,
                     Customer = u.Request.Customer != null ? u.Request.Customer.User.Name : string.Empty,
                     Company = u.CompanyName,
                     Employee = u.Request.Employee != null ? u.Request.Employee.User.Name : string.Empty,
@@ -166,7 +166,7 @@ namespace WebApiService.Services
                 Ordinal = model.Ordinal,
                 CompanyName = model.CompanyName,
                 Topic = model.Topic,
-                Description = model.Description,
+                Description = model.Description ?? string.Empty,
                 Status = ServiceRequestStatus.GetText(model.Status),
                 RequestType = ServiceRequestType.GetText(model.RequestType),
                 SubmitType = ServiceRequestSubmitType.GetText(model.SubmitType),
@@ -184,6 +184,7 @@ namespace WebApiService.Services
                 Description = dto.Description,
                 RequestType = dto.RequestType,
                 SubmitType = dto.SubmitType,
+                Status = ServiceRequestStatus.Submited,
             };
 
             _context.ServiceRequests.Add(model);
