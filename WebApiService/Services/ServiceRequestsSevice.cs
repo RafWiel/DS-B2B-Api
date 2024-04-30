@@ -176,8 +176,21 @@ namespace WebApiService.Services
 
         public async Task<IdResponseModel> Add(NewServiceRequestDto dto)
         {            
+            var ordinal = _context.ServiceRequests.Count(u => 
+                    u.CreationDate.Year == DateTime.UtcNow.Year &&
+                    u.CreationDate.Month == DateTime.UtcNow.Month
+                ) > 0 ?
+                _context.ServiceRequests
+                    .Where(u =>
+                        u.CreationDate.Year == DateTime.UtcNow.Year &&
+                    u.CreationDate.Month == DateTime.UtcNow.Month
+                    )
+                    .Max(x => x.Ordinal) + 1 :
+                1;
+
             var model = new ServiceRequestModel
             {
+                Ordinal = ordinal,
                 CreationDate = DateTime.UtcNow,
                 CustomerId = dto.CustomerId,
                 Topic = dto.Topic,

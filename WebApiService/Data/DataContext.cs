@@ -37,7 +37,7 @@ namespace WebApiService.Data
 
         //public static string GetServiceRequestName(int ordinal, DateTime date)
         //{
-        //    return $"ZLS/{ordinal}/{date.ToString("MM")}/{date.ToString("yy")}";
+        //    return $"ZLS-{ordinal}/{date.ToString("yy")}/{date.ToString("MM")}";
         //}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -174,12 +174,12 @@ namespace WebApiService.Data
                         functionName: "concat",
                         arguments: new[]
                         {
-                            new SqlFragmentExpression("'ZLS/'"),
+                            new SqlFragmentExpression("'ZLS-'"),
                             new SqlFragmentExpression($"{ordinalColumn.Name}"),
+                            new SqlFragmentExpression("'/'"),                            
+                            new SqlFragmentExpression($"right(datepart(year, {dateColumn.Name}), 2)"),
                             new SqlFragmentExpression("'/'"),
                             new SqlFragmentExpression($"right('00' + convert(varchar(4), datepart(month, {dateColumn.Name})), 2)"),
-                            new SqlFragmentExpression("'/'"),
-                            new SqlFragmentExpression($"datepart(year, {dateColumn.Name})"),
                         },
                         nullable: true,
                         argumentsPropagateNullability: new[] { false },
