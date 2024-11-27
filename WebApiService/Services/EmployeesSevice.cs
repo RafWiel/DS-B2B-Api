@@ -12,6 +12,7 @@ using WebApiService.Extensions;
 using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Identity;
+using WebApiService.Context;
 
 namespace WebApiService.Services
 {

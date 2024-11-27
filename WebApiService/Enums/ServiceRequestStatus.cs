@@ -1,8 +1,7 @@
 ﻿using System.Numerics;
 
 namespace WebApiService.Enums
-{
-    
+{    
     public class ServiceRequestStatus
     {
         public const int None = 0;

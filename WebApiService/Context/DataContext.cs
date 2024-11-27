@@ -8,7 +8,7 @@ using WebApiService.Enums;
 using WebApiService.Models;
 using WebApiService.Services;
 
-namespace WebApiService.Data
+namespace WebApiService.Context
 {
     public class DataContext : DbContext
     {

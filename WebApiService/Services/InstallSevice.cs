@@ -7,6 +7,7 @@ using WebApiService.Interfaces;
 using WebApiService.Enums;
 using WebApiService.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using WebApiService.Context;
 
 namespace WebApiService.Services
 {

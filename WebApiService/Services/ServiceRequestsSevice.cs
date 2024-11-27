@@ -12,7 +12,7 @@ using WebApiService.Extensions;
 using System.Linq;
 using System.Net;
 using Microsoft.AspNetCore.Identity;
-using WebApiService.Data;
+using WebApiService.Context;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebApiService.Services
@@ -51,38 +51,38 @@ namespace WebApiService.Services
                 from request in _context.ServiceRequests
                 join c in _context.Companies on
                     request.Customer.CompanyModelId equals c.Id into companies
-                from company in companies.DefaultIfEmpty()
-                where (
-                        !string.IsNullOrEmpty(search) ?
-                        (
-                            DataContext.DateToString(request.CreationDate).ToLower().Contains(search.ToLower()) ||
-                            DataContext.GetServiceRequestName(request.Ordinal, request.CreationDate).ToLower().Contains(search.ToLower()) ||
-                            request.Topic.ToLower().Contains(search.ToLower()) ||
-                            request.Description.ToLower().Contains(search.ToLower()) ||
-                            (request.Customer != null && request.Customer.User.Name.ToLower().Contains(search.ToLower())) ||
-                            (request.Employee != null && request.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
-                            (company.Name != null && company.Name.ToLower().Contains(search.ToLower()))
-                        ) : true
-                    )
-                    && (
-                        start != null ? request.CreationDate >= start : true
-                    )
-                    && (
-                        end != null ? request.CreationDate <= end.Value.AddDays(1) : true
-                    )
-                    && (
-                        employee != null ? request.EmployeeId == employee : true
-                    )
-                    && (
-                        type != null && type != 0 ? request.RequestType == type : true
-                    )
-                    && (
-                        submitType != null && submitType != 0 ? request.SubmitType == submitType : true
-                    )
-                    && (
-                        status != null && status != 0 ? (request.Status & status) != 0 : true
-                    )
-
+                    from company in companies.DefaultIfEmpty()
+                where 
+                (
+                    !string.IsNullOrEmpty(search) ?
+                    (
+                        DataContext.DateToString(request.CreationDate).ToLower().Contains(search.ToLower()) ||
+                        DataContext.GetServiceRequestName(request.Ordinal, request.CreationDate).ToLower().Contains(search.ToLower()) ||
+                        request.Topic.ToLower().Contains(search.ToLower()) ||
+                        request.Description.ToLower().Contains(search.ToLower()) ||
+                        (request.Customer != null && request.Customer.User.Name.ToLower().Contains(search.ToLower())) ||
+                        (request.Employee != null && request.Employee.User.Name.ToLower().Contains(search.ToLower())) ||
+                        (company.Name != null && company.Name.ToLower().Contains(search.ToLower()))
+                    ) : true
+                )
+                && (
+                    start != null ? request.CreationDate >= start : true
+                )
+                && (
+                    end != null ? request.CreationDate <= end.Value.AddDays(1) : true
+                )
+                && (
+                    employee != null ? request.EmployeeId == employee : true
+                )
+                && (
+                    type != null && type != 0 ? request.RequestType == type : true
+                )
+                && (
+                    submitType != null && submitType != 0 ? request.SubmitType == submitType : true
+                )
+                && (
+                    status != null && status != 0 ? (request.Status & status) != 0 : true
+                )
                 select new ExtendedServiceRequestModel
                 {
                     Request = request,

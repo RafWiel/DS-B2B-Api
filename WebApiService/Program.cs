@@ -1,4 +1,4 @@
-global using WebApiService.Data;
+global using WebApiService.Context;
 using WebApiService.Filters;
 using WebApiService.Interfaces;
 using WebApiService.Middlewares;
